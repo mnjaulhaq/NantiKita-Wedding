@@ -3,66 +3,152 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
-  name             String
-  username         String    @unique
-  email            String    @unique
-  emailVerifiedAt  DateTime? @map("email_verified_at")
-  password         String
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String    @db.VarChar(255)
+  username        String    @unique(map: "users_username_unique") @db.VarChar(255)
+  email           String    @unique(map: "users_email_unique") @db.VarChar(255)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(0)
+  password        String    @db.VarChar(255)
+  remember_token  String?   @db.VarChar(100)
+  createdAt       DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@map("users")
 }
 
 model Otp {
-  id        Int      @id @default(autoincrement())
-  username  String
-  otpCode   String   @map("otp_code")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  username  String    @db.VarChar(255)
+  otpCode   String    @map("otp_code") @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at") @db.Timestamp(0)
+  createdAt DateTime? @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
 
+  @@index([username], map: "otps_username_index")
   @@map("otps")
 }
 
 model Wedding {
-  id            Int      @id @default(autoincrement())
-  slug          String   @unique
-  namaPria      String   @map("nama_pria")
-  namaWanita    String   @map("nama_wanita")
-  tanggalAcara  DateTime @map("tanggal_acara")
-  lokasiAcara   String   @map("lokasi_acara")
-  tema          String
-  // "basic" | "premium" -- divalidasi di kode (Zod), SQLite tidak dukung enum native
-  paket         String   @default("basic")
-  musikUrl      String?  @map("musik_url")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  rsvps Rsvp[]
+  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  slug         String         @unique(map: "weddings_slug_unique") @db.VarChar(255)
+  namaPria     String         @map("nama_pria") @db.VarChar(255)
+  namaWanita   String         @map("nama_wanita") @db.VarChar(255)
+  tanggalAcara DateTime       @map("tanggal_acara") @db.Date
+  lokasiAcara  String         @map("lokasi_acara") @db.Text
+  tema         String         @db.VarChar(255)
+  paket        weddings_paket @default(basic)
+  musikUrl     String?        @map("musik_url") @db.VarChar(255)
+  createdAt    DateTime?      @map("created_at") @db.Timestamp(0)
+  updatedAt    DateTime?      @updatedAt @map("updated_at") @db.Timestamp(0)
+  rsvps        Rsvp[]
 
   @@map("weddings")
 }
 
 model Rsvp {
-  id           Int        @id @default(autoincrement())
-  weddingId    Int        @map("wedding_id")
-  namaTamu     String     @map("nama_tamu")
-  alamat       String
-  jumlahHadir  Int        @default(1) @map("jumlah_hadir")
-  // "hadir" | "tidak_hadir" -- divalidasi di kode (Zod), SQLite tidak dukung enum native
-  status       String
-  ucapan       String?
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+  id          BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  weddingId   BigInt       @map("wedding_id") @db.UnsignedBigInt
+  namaTamu    String       @map("nama_tamu") @db.VarChar(255)
+  alamat      String       @db.VarChar(255)
+  jumlahHadir Int          @default(1) @map("jumlah_hadir")
+  status      rsvps_status
+  ucapan      String?      @db.Text
+  createdAt   DateTime?    @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?    @updatedAt @map("updated_at") @db.Timestamp(0)
+  wedding     Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "rsvps_wedding_id_foreign")
 
-  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-
+  @@index([weddingId], map: "rsvps_wedding_id_foreign")
   @@map("rsvps")
+}
+
+model cache {
+  key        String @id @db.VarChar(255)
+  value      String @db.MediumText
+  expiration BigInt
+
+  @@index([expiration], map: "cache_expiration_index")
+}
+
+model cache_locks {
+  key        String @id @db.VarChar(255)
+  owner      String @db.VarChar(255)
+  expiration BigInt
+
+  @@index([expiration], map: "cache_locks_expiration_index")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.VarChar(255)
+  queue      String   @db.VarChar(255)
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([connection, queue, failed_at], map: "failed_jobs_connection_queue_failed_at_index")
+}
+
+model job_batches {
+  id             String  @id @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String  @db.LongText
+  options        String? @db.MediumText
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedSmallInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt? @db.UnsignedBigInt
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.LongText
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
+}
+
+enum rsvps_status {
+  hadir
+  tidak_hadir
+}
+
+enum weddings_paket {
+  basic
+  premium
 }
