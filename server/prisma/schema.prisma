@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  name            String    @db.VarChar(255)
-  username        String    @unique(map: "users_username_unique") @db.VarChar(255)
-  email           String    @unique(map: "users_email_unique") @db.VarChar(255)
-  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(0)
-  password        String    @db.VarChar(255)
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name             String    @db.VarChar(255)
+  username         String    @unique(map: "users_username_unique") @db.VarChar(255)
+  email            String    @unique(map: "users_email_unique") @db.VarChar(255)
+  emailVerifiedAt  DateTime? @map("email_verified_at")
+  password         String
   remember_token  String?   @db.VarChar(100)
   role            String    @default("owner") @db.VarChar(255)
   createdAt       DateTime? @map("created_at") @db.Timestamp(0)
@@ -36,22 +36,23 @@ model Otp {
 }
 
 model Wedding {
-  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
-  slug         String         @unique(map: "weddings_slug_unique") @db.VarChar(255)
-  namaPria     String         @map("nama_pria") @db.VarChar(255)
-  namaWanita   String         @map("nama_wanita") @db.VarChar(255)
-  tanggalAcara DateTime       @map("tanggal_acara") @db.Date
-  lokasiAcara  String         @map("lokasi_acara") @db.Text
-  tema         String         @db.VarChar(255)
-  paket        weddings_paket @default(basic)
-  musikUrl     String?        @map("musik_url") @db.VarChar(255)
-  userId       BigInt?        @map("user_id") @db.UnsignedBigInt
-  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt    DateTime?      @map("created_at") @db.Timestamp(0)
-  updatedAt    DateTime?      @updatedAt @map("updated_at") @db.Timestamp(0)
-  rsvps        Rsvp[]
+  id            BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  slug          String         @unique(map: "weddings_slug_unique") @db.VarChar(255)
+  namaPria      String         @map("nama_pria") @db.VarChar(255)
+  namaWanita    String         @map("nama_wanita") @db.VarChar(255)
+  tanggalAcara  DateTime       @map("tanggal_acara") @db.Date
+  lokasiAcara   String         @map("lokasi_acara") @db.Text
+  tema          String         @db.VarChar(255)
+  paket         weddings_paket @default(basic)
+  musikUrl      String?        @map("musik_url") @db.VarChar(255)
+  userId        BigInt?        @map("user_id") @db.UnsignedBigInt
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime?      @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime?      @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  @@index([userId], map: "weddings_user_id_idx")
+  rsvps Rsvp[]
+
+  @@index([userId])
   @@map("weddings")
 }
 

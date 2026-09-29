@@ -53,7 +53,7 @@ export async function dashboard(req: Request, res: Response) {
     data: {
       totalWeddings,
       totalRevenue,
-      totalGuestsHadir: totalGuestsHadir._sum.jumlahHadir || 0,
+      totalGuestsHadir: totalGuestsHadir._sum?.jumlahHadir ?? 0,
       recentWeddings,
     },
   });

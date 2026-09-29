@@ -49,11 +49,9 @@ export async function register(req: Request, res: Response) {
   }
 
   if (password !== password_confirmation) {
-    return res
-      .status(422)
-      .json({
-        errors: { password_confirmation: ["Konfirmasi password tidak cocok."] },
-      });
+    return res.status(422).json({
+      errors: { password_confirmation: ["Konfirmasi password tidak cocok."] },
+    });
   }
 
   const existingUsername =
@@ -147,56 +145,46 @@ export async function verifyOtp(req: Request, res: Response) {
     username = decoded.slice(separator + 1);
     if (userId <= 0n || !username) throw new Error("invalid token");
   } catch {
-    return res
-      .status(422)
-      .json({
-        errors: {
-          otp_code: ["Sesi verifikasi tidak valid. Silakan daftar ulang."],
-        },
-        redirect: "/register-owner",
-      });
+    return res.status(422).json({
+      errors: {
+        otp_code: ["Sesi verifikasi tidak valid. Silakan daftar ulang."],
+      },
+      redirect: "/register-owner",
+    });
   }
 
   const user = await UserModel.findUserById(userId);
   if (!user || user.username !== username || user.role !== "owner") {
-    return res
-      .status(422)
-      .json({
-        errors: { otp_code: ["Akun verifikasi tidak ditemukan."] },
-        redirect: "/register-owner",
-      });
+    return res.status(422).json({
+      errors: { otp_code: ["Akun verifikasi tidak ditemukan."] },
+      redirect: "/register-owner",
+    });
   }
 
   if (user.emailVerifiedAt) {
-    return res
-      .status(409)
-      .json({
-        errors: { otp_code: ["Email sudah diverifikasi. Silakan login."] },
-        redirect: "/login",
-      });
+    return res.status(409).json({
+      errors: { otp_code: ["Email sudah diverifikasi. Silakan login."] },
+      redirect: "/login",
+    });
   }
 
   const otp = await OtpModel.findLatestOtp(username);
   if (!otp) {
-    return res
-      .status(422)
-      .json({
-        errors: {
-          otp_code: ["Kode OTP tidak ditemukan atau sudah tidak berlaku."],
-        },
-      });
+    return res.status(422).json({
+      errors: {
+        otp_code: ["Kode OTP tidak ditemukan atau sudah tidak berlaku."],
+      },
+    });
   }
 
   if (otp.expiresAt.getTime() < Date.now()) {
     await OtpModel.deleteOtpsByUsername(username);
-    return res
-      .status(422)
-      .json({
-        errors: {
-          otp_code: ["Kode OTP sudah kedaluwarsa. Silakan daftar ulang."],
-        },
-        redirect: "/register-owner",
-      });
+    return res.status(422).json({
+      errors: {
+        otp_code: ["Kode OTP sudah kedaluwarsa. Silakan daftar ulang."],
+      },
+      redirect: "/register-owner",
+    });
   }
 
   if (String(otp_code).trim() !== otp.otpCode) {
@@ -234,15 +222,13 @@ export async function login(req: Request, res: Response) {
   }
 
   if (!user.emailVerifiedAt) {
-    return res
-      .status(403)
-      .json({
-        errors: {
-          username: [
-            "Akun belum diverifikasi. Silakan selesaikan verifikasi OTP dari email Anda.",
-          ],
-        },
-      });
+    return res.status(403).json({
+      errors: {
+        username: [
+          "Akun belum diverifikasi. Silakan selesaikan verifikasi OTP dari email Anda.",
+        ],
+      },
+    });
   }
 
   const token = signSession({

@@ -2,7 +2,9 @@ import { db } from "../config/db";
 
 export function listAllRsvps(scope: { userId?: bigint } = {}) {
   return db.rsvp.findMany({
-    where: { wedding: scope },
+    where: {
+      wedding: scope.userId ? { is: { userId: scope.userId } } : {},
+    },
     include: { wedding: true },
     orderBy: { createdAt: "desc" },
   });
@@ -11,7 +13,10 @@ export function listAllRsvps(scope: { userId?: bigint } = {}) {
 export function sumJumlahHadir(scope: { userId?: bigint } = {}) {
   return db.rsvp.aggregate({
     _sum: { jumlahHadir: true },
-    where: { status: "hadir", wedding: scope },
+    where: {
+      status: "hadir",
+      wedding: scope.userId ? { is: { userId: scope.userId } } : {},
+    },
   });
 }
 
