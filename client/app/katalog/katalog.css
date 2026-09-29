@@ -127,11 +127,11 @@ html {
   max-width: 100%;
 }
 
-.katalog-root .nav-logo-img {
-  height: 52px;
-  width: auto;
-  object-fit: contain;
-  display: block;
+.katalog-root .nav-logo-text {
+  color: var(--light-text);
+  font-size: 22px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .katalog-root .navbar-center-menu {
@@ -321,7 +321,9 @@ html {
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+    box-shadow 0.4s ease;
   background-color: var(--card-bg);
   height: 100%;
   display: flex;

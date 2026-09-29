@@ -52,7 +52,8 @@ const TEMPLATES: TemplateItem[] = [
     title: "FLORAL LUXURY",
     edition: "Special Edition :",
     // Placeholder sementara sampai screenshot aslinya ada
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500",
+    image:
+      "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500",
     alt: "Floral Luxury",
   },
   {
@@ -133,7 +134,7 @@ const demoHref = (theme: string, paket: "basic" | "premium") =>
 
 const waOrder = (paket: string) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    `Halo Admin Nanti Kita, saya mau order Paket ${paket}`
+    `Halo Admin Nanti Kita, saya mau order Paket ${paket}`,
   )}`;
 
 /* ------------------- Efek hover otomatis saat di-scroll ------------------- */
@@ -154,7 +155,7 @@ function ScrollTrigger({
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setActive(entry.isIntersecting),
-      { root: null, threshold: 0.5, rootMargin: "-10% 0px -10% 0px" }
+      { root: null, threshold: 0.5, rootMargin: "-10% 0px -10% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -162,7 +163,9 @@ function ScrollTrigger({
 
   return (
     <div className="k-col" ref={ref}>
-      <div className={`${cardClassName}${active ? " auto-hover" : ""}`}>{children}</div>
+      <div className={`${cardClassName}${active ? " auto-hover" : ""}`}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -209,7 +212,11 @@ function Navbar() {
     if (!menuOpen) return;
     const onClick = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      if (
+        buttonRef.current?.contains(target) ||
+        menuRef.current?.contains(target)
+      )
+        return;
       setMenuOpen(false);
     };
     window.addEventListener("click", onClick);
@@ -220,7 +227,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="container-navbar-custom">
         <a className="navbar-brand-logo" href="#top">
-          <img src="/images/Logo NantiKita.png" alt="Logo Nanti Kita" className="nav-logo-img" />
+          <span className="nav-logo-text">NantiKita</span>
         </a>
 
         <div className="navbar-center-menu" ref={centerRef}>
@@ -254,7 +261,10 @@ function Navbar() {
           <BsList className="menu-icon" />
         </button>
 
-        <div className={`nantikita-menu${menuOpen ? " show" : ""}`} ref={menuRef}>
+        <div
+          className={`nantikita-menu${menuOpen ? " show" : ""}`}
+          ref={menuRef}
+        >
           <div className="mobile-menu-links">
             <a className="dropdown-item-link" href="#katalog">
               Katalog Template
@@ -299,7 +309,10 @@ function Navbar() {
 
 export default function KatalogPage() {
   return (
-    <div id="top" className={`katalog-root ${montserrat.variable} ${playfair.variable}`}>
+    <div
+      id="top"
+      className={`katalog-root ${montserrat.variable} ${playfair.variable}`}
+    >
       <Navbar />
 
       {/* Hero */}
@@ -319,7 +332,9 @@ export default function KatalogPage() {
                 </div>
                 <div className="p-2-custom">
                   <div>
-                    {t.edition && <div className="edition-label">{t.edition}</div>}
+                    {t.edition && (
+                      <div className="edition-label">{t.edition}</div>
+                    )}
                     <div className="template-title">{t.title}</div>
                   </div>
                   <div className="button-group-wrapper">
@@ -441,7 +456,10 @@ export default function KatalogPage() {
         rel="noopener noreferrer"
         title="Hubungi Admin via WhatsApp"
       >
-        <img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png" alt="WhatsApp" />
+        <img
+          src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"
+          alt="WhatsApp"
+        />
       </a>
     </div>
   );
