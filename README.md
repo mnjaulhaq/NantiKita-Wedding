@@ -33,7 +33,7 @@ panggil **controllers** (logic) → controllers pakai **models** (query Prisma).
 cd server
 cp .env.example .env      # isi JWT_SECRET, dsb
 npm install
-npx prisma migrate dev    # generate DB dari prisma/schema.prisma
+npm install    # generate DB dari prisma/schema.prisma
 npm run dev                # jalan di http://localhost:4000
 ```
 

@@ -12,8 +12,24 @@ export function findUserById(id: number) {
   return db.user.findUnique({ where: { id } });
 }
 
-export function createUser(data: { name: string; username: string; email: string; password: string }) {
-  return db.user.create({ data });
+export function createUser(data: {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  role?: string;
+  emailVerifiedAt?: Date | null;
+}) {
+  return db.user.create({
+    data: {
+      name: data.name,
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      role: "owner",
+      emailVerifiedAt: data.emailVerifiedAt ?? null,
+    },
+  });
 }
 
 export function markEmailVerified(id: number) {

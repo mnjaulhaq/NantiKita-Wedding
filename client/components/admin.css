@@ -1,0 +1,214 @@
+/* Tema admin NANTIKITA — turunan dari login.css. Di-scope ke .admin-root. */
+.admin-root{
+  --g-900:#141e17; --g-800:#1e2d24; --g-700:#2d3f34; --g-600:#3e5747;
+  --g-100:#e7eee9; --g-50:#f3f6f4;
+  --ink:#222; --muted:#717171; --line:#e6e9e6; --bg:#f4f6f3;
+  --danger:#c13515; --danger-bg:#fff8f6; --gold:#9a6b12; --gold-bg:#fbf3e2;
+  display:flex; min-height:100vh; background:var(--bg); color:var(--ink);
+  font-family:var(--font-jakarta),"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  line-height:1.5;
+}
+.admin-root *,.admin-root *::before,.admin-root *::after{box-sizing:border-box}
+.admin-root a{text-decoration:none;color:inherit}
+
+/* Sidebar — bahasa visual yang sama dengan latar login */
+.adm-side{
+  position:sticky; top:0; height:100vh; width:264px; flex:none; display:flex; flex-direction:column;
+  padding:24px 16px; color:#fff; background-color:var(--g-900);
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(160deg,#141e17 0%,#243329 100%);
+  background-size:32px 32px,32px 32px,auto;
+}
+.adm-brand{display:flex;align-items:center;gap:12px;padding:4px 10px 28px}
+.adm-brand-mark{width:38px;height:38px;border-radius:12px;background:#fff;color:var(--g-700);
+  display:grid;place-items:center;font-weight:800;font-size:17px;letter-spacing:-.5px}
+.adm-brand b{display:block;font-weight:800;font-size:16px;letter-spacing:-.3px}
+.adm-brand small{display:block;font-size:12px;color:rgba(255,255,255,.5)}
+.adm-nav{display:flex;flex-direction:column;gap:4px}
+.adm-link{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;
+  font-size:14px;font-weight:600;color:rgba(255,255,255,.62);transition:background .25s,color .25s}
+.adm-link svg{width:18px;height:18px;flex:none}
+.adm-link:hover{background:rgba(255,255,255,.06);color:#fff}
+.adm-link.active{background:rgba(255,255,255,.12);color:#fff}
+.adm-side-foot{margin-top:auto;padding:14px;border-radius:16px;background:rgba(255,255,255,.06)}
+.adm-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.adm-avatar{width:36px;height:36px;border-radius:50%;background:#fff;color:var(--g-700);
+  display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+.adm-user b{display:block;font-size:13px;font-weight:700}
+.adm-user small{font-size:12px;color:rgba(255,255,255,.5)}
+.adm-logout button{width:100%;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);
+  background:transparent;color:#fff;font:600 13px inherit;font-family:inherit;cursor:pointer;transition:background .25s}
+.adm-logout button:hover{background:rgba(255,255,255,.1)}
+
+.adm-main{flex:1;min-width:0}
+.adm-topbar{display:none}
+.adm-content{max-width:1120px;margin:0 auto;padding:40px 36px 56px}
+
+/* Judul halaman */
+.adm-head{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
+.adm-head h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.5px}
+.adm-head p{margin:4px 0 0;font-size:15px;color:var(--muted)}
+.adm-back{display:inline-block;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--g-700)}
+.adm-back:hover{text-decoration:underline}
+
+/* Banner dashboard: satu-satunya elemen "berani" */
+.adm-hero{position:relative;overflow:hidden;border-radius:24px;padding:36px;color:#fff;margin-bottom:24px;
+  background-color:var(--g-900);
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(135deg,#141e17 0%,#2d3f34 100%);
+  background-size:32px 32px,32px 32px,auto;box-shadow:0 16px 40px rgba(20,30,23,.25);
+  display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-end}
+.adm-hero h2{margin:0;font-size:30px;font-weight:800;letter-spacing:-.8px;max-width:440px;line-height:1.2}
+.adm-hero p{margin:10px 0 0;color:rgba(255,255,255,.62);font-size:15px;max-width:420px}
+.adm-hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Kartu & statistik */
+.adm-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 2px 10px rgba(20,30,23,.04)}
+.adm-card h3{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.adm-card-sub{margin:2px 0 16px;font-size:13px;color:var(--muted)}
+.adm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.adm-stat{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 24px;box-shadow:0 2px 10px rgba(20,30,23,.04)}
+.adm-stat span{display:block;font-size:13px;font-weight:600;color:var(--muted)}
+.adm-stat strong{display:block;margin-top:8px;font-size:30px;font-weight:800;letter-spacing:-1px;color:var(--g-800)}
+.adm-stat em{font-style:normal;font-size:14px;font-weight:500;color:var(--muted);margin-left:4px;letter-spacing:0}
+.adm-stat.hi{background:var(--g-700);border-color:var(--g-700)}
+.adm-stat.hi span{color:rgba(255,255,255,.65)} .adm-stat.hi strong{color:#fff}
+.adm-stats-3{grid-template-columns:repeat(3,1fr)}
+
+/* Tombol (padanan .btn-primary-custom di login) */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:14px;
+  font:600 14px inherit;font-family:inherit;cursor:pointer;border:1px solid transparent;
+  transition:background-color .3s,transform .3s cubic-bezier(.16,1,.3,1),border-color .3s}
+.adm-btn:active{transform:scale(.95)}
+.adm-btn-primary{background:var(--g-700);color:#fff}
+.adm-btn-primary:hover{background:var(--g-800)}
+.adm-btn-light{background:#fff;color:var(--g-800)}
+.adm-btn-light:hover{background:var(--g-100)}
+.adm-btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.adm-btn-ghost:hover{background:var(--g-50);border-color:#cfd6d1}
+.adm-btn-danger{background:#fff;color:var(--danger);border-color:#f0cfc7}
+.adm-btn-danger:hover{background:var(--danger-bg)}
+.adm-btn-sm{padding:6px 12px;border-radius:10px;font-size:13px}
+
+/* Daftar & tabel */
+.adm-list{display:flex;flex-direction:column}
+.adm-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.adm-row:first-child{border-top:0;padding-top:0}
+.adm-row .adm-avatar{background:var(--g-100);color:var(--g-700)}
+.adm-row-main{flex:1;min-width:0}
+.adm-row-main b{display:block;font-size:14px;font-weight:700}
+.adm-row-main small{font-size:13px;color:var(--muted)}
+.adm-grid-2{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.adm-table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--line)}
+.adm-table{width:100%;border-collapse:collapse;text-align:left;background:#fff}
+.adm-table th{padding:14px 16px;font-size:13px;font-weight:700;color:var(--muted);background:var(--g-50);border-bottom:1px solid var(--line);white-space:nowrap}
+.adm-table td{padding:14px 16px;font-size:14px;border-top:1px solid var(--line);vertical-align:middle}
+.adm-table tbody tr:first-child td{border-top:0}
+.adm-table tbody tr:hover{background:#fafbfa}
+.adm-name{font-weight:700}
+.adm-sub{font-size:12px;color:var(--muted);font-weight:400}
+.adm-quote{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#555;font-style:italic}
+.adm-actions{display:flex;gap:6px;justify-content:center}
+.adm-empty{padding:40px 16px;text-align:center;color:var(--muted);font-size:14px}
+.adm-muted{color:var(--muted);font-size:14px}
+.adm-error{padding:10px 14px;border-left:3px solid var(--danger);background:var(--danger-bg);color:var(--danger);border-radius:4px;font-size:13px;font-weight:500}
+
+/* Badge */
+.adm-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.adm-badge-ok{background:var(--g-100);color:var(--g-700)}
+.adm-badge-no{background:var(--danger-bg);color:var(--danger)}
+.adm-badge-gold{background:var(--gold-bg);color:var(--gold)}
+.adm-badge-plain{background:#eff1ef;color:#4a524d}
+
+/* Kolom tautan undangan */
+.adm-linkbox{display:flex;gap:6px;align-items:center}
+.adm-linkbox input{width:180px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--g-50);font:13px inherit;font-family:inherit;color:#555}
+.adm-linkbox input:focus{outline:none}
+
+/* Fokus keyboard */
+.admin-root a:focus-visible,.admin-root button:focus-visible{outline:2px solid var(--g-700);outline-offset:2px}
+.adm-side a:focus-visible,.adm-side button:focus-visible{outline-color:#fff}
+
+/* Logo & menu nonaktif */
+.adm-logo{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 8px 24px;margin-bottom:20px;
+  border-bottom:1px solid rgba(255,255,255,.1);text-align:center}
+.adm-logo img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.adm-logo b{font-weight:800;font-size:15px;letter-spacing:.2px}
+.adm-link.soon{opacity:.45;cursor:default}
+.adm-link.soon:hover{background:transparent;color:rgba(255,255,255,.62)}
+.adm-soon-tag{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12)}
+.adm-side-foot{font-size:12px;color:rgba(255,255,255,.45);text-align:center}
+.adm-topname{font-size:13px;font-weight:600;color:rgba(255,255,255,.7)}
+
+/* Form (gaya field seperti login) */
+.adm-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.adm-field{display:flex;flex-direction:column}
+.adm-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.adm-input{width:100%;height:52px;padding:0 16px;border:1px solid #b0b0b0;border-radius:12px;background:#fff;
+  font:15px inherit;font-family:inherit;color:#1a241f;transition:border-color .3s,box-shadow .3s}
+textarea.adm-input{height:auto;padding:14px 16px;resize:vertical;line-height:1.5}
+.adm-input::placeholder{color:#a0a6a2}
+.adm-input:focus{outline:none;border:2px solid var(--g-700);padding-left:15px;box-shadow:0 0 0 4px rgba(45,63,52,.12)}
+textarea.adm-input:focus{padding:13px 15px}
+.adm-hint{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.adm-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:24px;border-top:1px solid var(--line)}
+.adm-btn:disabled{opacity:.6;cursor:not-allowed}
+
+@media(max-width:960px){
+  .adm-side{position:fixed;z-index:30;left:0;transform:translateX(-100%);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+  .adm-side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.4)}
+  .adm-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--g-900);color:#fff;position:sticky;top:0;z-index:20}
+  .adm-topbar button{background:none;border:0;color:#fff;font-size:22px;cursor:pointer;line-height:1}
+  .adm-content{padding:24px 18px 48px}
+  .adm-stats,.adm-stats-3,.adm-grid-2,.adm-form-grid{grid-template-columns:1fr}
+  .adm-hero{padding:26px}.adm-hero h2{font-size:24px}
+}
+@media(prefers-reduced-motion:reduce){.admin-root *{transition:none!important}}
+
+/* Tombol logout bawaan (Tailwind merah) diselaraskan dengan sidebar */
+.admin-root .adm-logout button{width:100%!important;background:transparent!important;border:1px solid rgba(255,255,255,.2)!important;
+  color:#fff!important;border-radius:10px!important;padding:9px 12px!important;box-shadow:none!important;font-weight:600!important;font-size:13px!important}
+.admin-root .adm-logout button:hover{background:rgba(255,255,255,.1)!important}
+
+/* Dashboard */
+.adm-date{display:inline-block;margin-bottom:12px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.adm-stat-top{display:flex;align-items:center;justify-content:space-between}
+.adm-stat-ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--g-100);color:var(--g-700)}
+.adm-stat-ic svg{width:18px;height:18px}
+.adm-stat.hi .adm-stat-ic{background:rgba(255,255,255,.14);color:#fff}
+.adm-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px}
+.adm-card-head a{font-size:13px;font-weight:700;color:var(--g-700)}
+.adm-card-head a:hover{text-decoration:underline}
+.adm-stack{display:flex;flex-direction:column;gap:16px}
+.adm-when{flex:none;width:52px;padding:6px 0;border-radius:12px;background:var(--g-100);text-align:center;color:var(--g-700)}
+.adm-when b{display:block;font-size:18px;font-weight:800;line-height:1.1}
+.adm-when small{font-size:11px;font-weight:700}
+.adm-when.past{background:#eff1ef;color:#8a918c}
+.adm-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:#eff1ef;margin:14px 0 12px}
+.adm-bar i{display:block;height:100%}
+.adm-legend{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.adm-legend b{color:var(--ink)}
+.adm-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.adm-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adm-quick a{padding:14px;border-radius:14px;border:1px solid var(--line);font-size:14px;font-weight:700;transition:background .25s,border-color .25s}
+.adm-quick a:hover{background:var(--g-50);border-color:#cfd6d1}
+.adm-quick small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:2px}
+
+/* Form bagian-bagian & pilihan kartu */
+.adm-section{padding-bottom:28px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.adm-section:last-of-type{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.adm-section h3{margin:0;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.adm-section > p{margin:2px 0 18px;font-size:13px;color:var(--muted)}
+.adm-choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.adm-choices.two{grid-template-columns:1fr 1fr}
+.adm-choice{position:relative;display:block;padding:14px 16px;border:1px solid #b0b0b0;border-radius:14px;background:#fff;cursor:pointer;
+  transition:border-color .25s,box-shadow .25s,background .25s}
+.adm-choice:hover{background:var(--g-50)}
+.adm-choice input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.adm-choice b{display:block;font-size:14px;font-weight:700}
+.adm-choice small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.adm-choice.on{border:2px solid var(--g-700);padding:13px 15px;background:var(--g-50);box-shadow:0 0 0 4px rgba(45,63,52,.1)}
+.adm-choice:focus-within{outline:2px solid var(--g-700);outline-offset:2px}
+.adm-choice.off{opacity:.6}

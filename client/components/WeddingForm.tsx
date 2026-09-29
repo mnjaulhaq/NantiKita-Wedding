@@ -1,142 +1,148 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { themeOptions } from "@/lib/themes";
+import { useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { errorPopup, successPopup } from "@/lib/alert";
+import { THEMES } from "@/lib/themes";
 
-type WeddingFormValues = {
+export type WeddingFormValues = {
   nama_pria: string;
   nama_wanita: string;
   tanggal_acara: string;
   lokasi_acara: string;
   paket: "basic" | "premium";
   tema: string;
+  musik_url?: string;
 };
 
-export default function WeddingForm({
-  mode,
-  weddingId,
-  initial,
-}: {
+type Props = {
   mode: "create" | "edit";
   weddingId?: number;
   initial?: Partial<WeddingFormValues>;
-}) {
+};
+
+// Gaya field & tombol ada di components/admin.css (adm-*), mengikuti desain login.
+
+export default function WeddingForm({ mode, weddingId, initial }: Props) {
   const router = useRouter();
-  const themes = themeOptions();
-  const [form, setForm] = useState<WeddingFormValues>({
-    nama_pria: initial?.nama_pria || "",
-    nama_wanita: initial?.nama_wanita || "",
-    tanggal_acara: initial?.tanggal_acara || "",
-    lokasi_acara: initial?.lokasi_acara || "",
-    paket: initial?.paket || "basic",
-    tema: initial?.tema || themes[0]?.key || "",
+  const isCreate = mode === "create";
+  const [saving, setSaving] = useState(false);
+  const [values, setValues] = useState<WeddingFormValues>({
+    nama_pria: "",
+    nama_wanita: "",
+    tanggal_acara: "",
+    lokasi_acara: "",
+    paket: "basic",
+    tema: THEMES[0]?.key ?? "",
+    musik_url: "",
+    ...initial,
   });
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [loading, setLoading] = useState(false);
+
+  function set<K extends keyof WeddingFormValues>(key: K, value: WeddingFormValues[K]) {
+    setValues((v) => ({ ...v, [key]: value }));
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErrors({});
-    setLoading(true);
-    const url = mode === "create" ? "/api/admin/weddings" : `/api/admin/weddings/${weddingId}`;
-    const method = mode === "create" ? "POST" : "PUT";
-    const res = await apiFetch(url, {
-      method,
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) {
-      setErrors(data.errors || {});
-      return;
+    setSaving(true);
+    try {
+      // ASUMSI: endpoint & body snake_case. Sesuaikan dengan API-mu / WeddingForm yang sudah ada.
+      const res = await apiFetch(isCreate ? "/api/admin/weddings" : `/api/admin/weddings/${weddingId}`, {
+        method: isCreate ? "POST" : "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error("Request gagal");
+      await successPopup(isCreate ? "Undangan berhasil dibuat." : "Data undangan berhasil diperbarui.");
+      router.push("/admin/weddings");
+    } catch {
+      await errorPopup("Data belum bisa disimpan. Coba lagi.");
+    } finally {
+      setSaving(false);
     }
-    router.push("/admin");
-    router.refresh();
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 max-w-lg">
-      <Field label="Nama Pria" value={form.nama_pria} onChange={(v) => setForm({ ...form, nama_pria: v })} errors={errors.nama_pria} />
-      <Field label="Nama Wanita" value={form.nama_wanita} onChange={(v) => setForm({ ...form, nama_wanita: v })} errors={errors.nama_wanita} />
-      <Field
-        label="Tanggal Acara"
-        type="date"
-        value={form.tanggal_acara}
-        onChange={(v) => setForm({ ...form, tanggal_acara: v })}
-        errors={errors.tanggal_acara}
-      />
-      <div>
-        <label className="block text-sm mb-1">Lokasi Acara</label>
-        <textarea
-          className="w-full border rounded px-3 py-2"
-          value={form.lokasi_acara}
-          onChange={(e) => setForm({ ...form, lokasi_acara: e.target.value })}
-          required
-        />
-        {errors.lokasi_acara?.map((e) => (
-          <p key={e} className="text-red-600 text-xs mt-1">{e}</p>
-        ))}
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Paket</label>
-        <select
-          className="w-full border rounded px-3 py-2"
-          value={form.paket}
-          onChange={(e) => setForm({ ...form, paket: e.target.value as "basic" | "premium" })}
-        >
-          <option value="basic">Basic</option>
-          <option value="premium">Premium</option>
-        </select>
-      </div>
-      <div>
-        <label className="block text-sm mb-1">Tema</label>
-        <select
-          className="w-full border rounded px-3 py-2"
-          value={form.tema}
-          onChange={(e) => setForm({ ...form, tema: e.target.value })}
-        >
-          {themes.map((t) => (
-            <option key={t.key} value={t.key}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button disabled={loading} className="bg-black text-white rounded px-5 py-2 disabled:opacity-50">
-        {loading ? "Menyimpan..." : mode === "create" ? "Buat Klien" : "Update Klien"}
-      </button>
-    </form>
-  );
-}
+    <form onSubmit={onSubmit}>
+      <section className="adm-section">
+        <h3>Data pengantin</h3>
+        <p>Nama yang akan tampil di undangan.</p>
+        <div className="adm-form-grid" style={{ marginBottom: 0 }}>
+          <div className="adm-field">
+            <label htmlFor="nama_pria" className="adm-label">Nama pengantin pria</label>
+            <input id="nama_pria" type="text" required value={values.nama_pria} onChange={(e) => set("nama_pria", e.target.value)}
+              placeholder={isCreate ? "Contoh: Andi" : undefined} className="adm-input" />
+          </div>
+          <div className="adm-field">
+            <label htmlFor="nama_wanita" className="adm-label">Nama pengantin wanita</label>
+            <input id="nama_wanita" type="text" required value={values.nama_wanita} onChange={(e) => set("nama_wanita", e.target.value)}
+              placeholder={isCreate ? "Contoh: Siti" : undefined} className="adm-input" />
+          </div>
+        </div>
+      </section>
 
-function Field({
-  label,
-  value,
-  onChange,
-  errors,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  errors?: string[];
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm mb-1">{label}</label>
-      <input
-        type={type}
-        className="w-full border rounded px-3 py-2"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required
-      />
-      {errors?.map((e) => (
-        <p key={e} className="text-red-600 text-xs mt-1">{e}</p>
-      ))}
-    </div>
+      <section className="adm-section">
+        <h3>Acara</h3>
+        <p>Kapan dan di mana pernikahan berlangsung.</p>
+        <div className="adm-field" style={{ marginBottom: 20, maxWidth: 320 }}>
+          <label htmlFor="tanggal_acara" className="adm-label">Tanggal pernikahan</label>
+          <input id="tanggal_acara" type="date" required value={values.tanggal_acara} onChange={(e) => set("tanggal_acara", e.target.value)} className="adm-input" />
+        </div>
+        <div className="adm-field">
+          <label htmlFor="lokasi_acara" className="adm-label">Lokasi acara / alamat lengkap</label>
+          <textarea id="lokasi_acara" rows={3} required value={values.lokasi_acara} onChange={(e) => set("lokasi_acara", e.target.value)}
+            placeholder={isCreate ? "Gedung Sasana Budaya, Jl. Merdeka No. 12, Jakarta" : undefined} className="adm-input" />
+        </div>
+      </section>
+
+      <section className="adm-section">
+        <h3>Paket</h3>
+        <p>Pilih fitur yang didapat klien.</p>
+        <div className="adm-choices two">
+          {([
+            ["basic", "Basic", "Standar"],
+            ["premium", "Premium", "Fitur lengkap + custom name guest"],
+          ] as const).map(([val, title, desc]) => (
+            <label key={val} className={`adm-choice${values.paket === val ? " on" : ""}`}>
+              <input type="radio" name="paket" value={val} required checked={values.paket === val} onChange={() => set("paket", val)} />
+              <b>{title}</b>
+              <small>{desc}</small>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <section className="adm-section">
+        <h3>Tema & musik</h3>
+        <p>Tema bertanda &quot;Belum siap&quot; masih dalam pengerjaan tim dan belum bisa dipakai untuk client asli.</p>
+        <div className="adm-choices" style={{ marginBottom: 20 }}>
+          {THEMES.map((t) => (
+            <label key={t.key} className={`adm-choice${values.tema === t.key ? " on" : ""}${t.status !== "active" ? " off" : ""}`}>
+              <input type="radio" name="tema" value={t.key} required checked={values.tema === t.key} onChange={() => set("tema", t.key)} />
+              <b>{t.label}</b>
+              {t.status !== "active" && <small>Belum siap</small>}
+            </label>
+          ))}
+        </div>
+        <div className="adm-field">
+          <label htmlFor="musik_url" className="adm-label">Link musik latar (opsional)</label>
+          <input id="musik_url" type="url" value={values.musik_url ?? ""} onChange={(e) => set("musik_url", e.target.value)}
+            placeholder="https://youtube.com/... atau mp3 link" className="adm-input" />
+        </div>
+      </section>
+
+      <div className="adm-form-actions">
+        {!isCreate && (
+          <Link href="/admin/weddings" className="adm-btn adm-btn-ghost">
+            Batal
+          </Link>
+        )}
+        <button type="submit" disabled={saving} className="adm-btn adm-btn-primary">
+          {saving ? "Menyimpan..." : isCreate ? "Buat undangan" : "Simpan perubahan"}
+        </button>
+      </div>
+    </form>
   );
 }

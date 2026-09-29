@@ -14,8 +14,12 @@ model User {
   email            String    @unique
   emailVerifiedAt  DateTime? @map("email_verified_at")
   password         String
+  // Semua akun aplikasi saat ini adalah owner.
+  role             String    @default("owner")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  weddings Wedding[]
 
   @@map("users")
 }
@@ -42,11 +46,15 @@ model Wedding {
   // "basic" | "premium" -- divalidasi di kode (Zod), SQLite tidak dukung enum native
   paket         String   @default("basic")
   musikUrl      String?  @map("musik_url")
+  // Owner pemilik data ini. Semua akun saat ini ber-role owner.
+  userId        Int?     @map("user_id")
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   rsvps Rsvp[]
 
+  @@index([userId])
   @@map("weddings")
 }
 

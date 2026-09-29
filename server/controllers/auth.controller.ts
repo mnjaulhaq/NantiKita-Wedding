@@ -1,112 +1,154 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
-import { sendOtpEmail } from "../config/mailer";
-import { signSession, signPendingVerification, verifyPendingVerification } from "../middlewares/auth.middleware";
+import crypto from "crypto";
+import { signSession } from "../middlewares/auth.middleware";
 import * as UserModel from "../models/user.model";
 import * as OtpModel from "../models/otp.model";
+import { sendOtpEmail } from "../config/mailer";
 
-const registerSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Display name tidak boleh kosong.")
-    .regex(/^[a-zA-Z][a-zA-Z0-9\s]*$/, "Display name harus diawali huruf dan tidak boleh mengandung simbol."),
-  username: z
-    .string()
-    .min(5, "Username minimal harus 5 karakter.")
-    .regex(/^[a-zA-Z][a-zA-Z0-9._-]*$/, "Username harus diawali huruf dan tidak boleh hanya berisi simbol."),
-  email: z.string().email("Format email tidak valid."),
-  password: z.string().min(8, "Kata sandi minimal harus 8 karakter."),
-  password_confirmation: z.string(),
-});
+function normalizeEmail(email: string) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function normalizeUsername(username: string) {
+  return String(username || "").trim();
+}
+
+function generateOtp() {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
+}
 
 export async function register(req: Request, res: Response) {
-  const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
-  }
-  const data = parsed.data;
+  const { name, username, email, password, password_confirmation } = req.body ?? {};
+  const normalizedUsername = normalizeUsername(username);
+  const normalizedEmail = normalizeEmail(email);
 
-  if (data.password !== data.password_confirmation) {
-    return res.status(422).json({ errors: { password: ["Konfirmasi kata sandi tidak cocok."] } });
-  }
-
-  if (await UserModel.findUserByUsername(data.username)) {
-    return res.status(422).json({ errors: { username: ["Username sudah terdaftar."] } });
-  }
-  if (await UserModel.findUserByEmail(data.email)) {
-    return res.status(422).json({ errors: { email: ["Email sudah digunakan akun lain."] } });
+  if (!name || !normalizedUsername || !normalizedEmail || !password || !password_confirmation) {
+    return res.status(422).json({
+      errors: { general: ["Nama, username, email, password, dan konfirmasi password wajib diisi."] },
+    });
   }
 
-  const hashed = await bcrypt.hash(data.password, 10);
-  await UserModel.createUser({ name: data.name, username: data.username, email: data.email, password: hashed });
+  if (String(password).length < 8) {
+    return res.status(422).json({ errors: { password: ["Password minimal 8 karakter."] } });
+  }
 
-  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  await OtpModel.createOtp({ username: data.username, otpCode, expiresAt });
-  await sendOtpEmail(data.email, otpCode);
+  if (password !== password_confirmation) {
+    return res.status(422).json({ errors: { password_confirmation: ["Konfirmasi password tidak cocok."] } });
+  }
 
-  const verifyToken = signPendingVerification(data.username, data.email);
+  const existingUsername = await UserModel.findUserByUsername(normalizedUsername);
+  if (existingUsername) {
+    return res.status(409).json({ errors: { username: ["Username sudah digunakan."] } });
+  }
 
-  return res.json({
+  const existingEmail = await UserModel.findUserByEmail(normalizedEmail);
+  if (existingEmail) {
+    return res.status(409).json({ errors: { email: ["Email sudah digunakan."] } });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const user = await UserModel.createUser({
+    name: String(name).trim(),
+    username: normalizedUsername,
+    email: normalizedEmail,
+    password: hashedPassword,
+    role: "owner",
+    emailVerifiedAt: null,
+  });
+
+  const otpCode = generateOtp();
+  const expiresAt = new Date(Date.now() + 5 * 60_000);
+
+  await OtpModel.deleteOtpsByUsername(normalizedUsername);
+  await OtpModel.createOtp({
+    username: normalizedUsername,
+    otpCode,
+    expiresAt,
+  });
+
+  try {
+    await sendOtpEmail(normalizedEmail, otpCode);
+  } catch (error) {
+    await OtpModel.deleteOtpsByUsername(normalizedUsername);
+    await UserModel.deleteUsersByUsername(normalizedUsername);
+    console.error("Gagal mengirim OTP:", error);
+    return res.status(500).json({
+      errors: { general: ["Kode OTP gagal dikirim. Silakan coba lagi."] },
+    });
+  }
+
+  // Token pendek untuk mengikat proses verifikasi ke akun yang baru dibuat.
+  // Token ini bukan token login/JWT.
+  const verifyToken = Buffer.from(`${user.id}:${normalizedUsername}`).toString("base64url");
+
+  return res.status(201).json({
     success: true,
-    message: "Registrasi berhasil! Silakan cek email Anda untuk kode OTP.",
+    message: "Akun berhasil dibuat. Silakan verifikasi OTP yang dikirim ke email.",
+    data: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: "owner",
+    },
     verify_token: verifyToken,
+    redirect: "/verify-otp",
   });
 }
 
-export async function checkUsername(req: Request, res: Response) {
-  const { username } = req.body;
-  const exists = username ? !!(await UserModel.findUserByUsername(username)) : false;
-  res.json({ available: !exists });
-}
-
-export async function checkEmail(req: Request, res: Response) {
-  const { email } = req.body;
-  const exists = email ? !!(await UserModel.findUserByEmail(email)) : false;
-  res.json({ available: !exists });
-}
-
 export async function verifyOtp(req: Request, res: Response) {
-  const { otp_code, verify_token } = req.body;
-  if (!otp_code || isNaN(Number(otp_code))) {
-    return res.status(422).json({ errors: { otp_code: ["Kode OTP wajib diisi dan harus berupa angka."] } });
+  const { otp_code, verify_token } = req.body ?? {};
+
+  if (!otp_code || !verify_token) {
+    return res.status(422).json({ errors: { otp_code: ["Kode OTP wajib diisi."] } });
   }
 
-  const pending = verify_token ? verifyPendingVerification(verify_token) : null;
-  if (!pending) {
-    return res.status(400).json({
-      errors: { username: ["Sesi verifikasi telah berakhir, silakan registrasi ulang."] },
-      redirect: "/register-admin",
-    });
-  }
-  const verifyUsername = pending.username;
-
-  const otpData = await OtpModel.findLatestOtp(verifyUsername);
-  const isExpired = otpData ? otpData.expiresAt.getTime() < Date.now() : true;
-
-  if (!otpData || String(otp_code) !== otpData.otpCode || isExpired) {
-    if (otpData && isExpired) {
-      await UserModel.deleteUsersByUsername(verifyUsername);
-      await OtpModel.deleteOtpsByUsername(verifyUsername);
-      return res.status(400).json({
-        errors: { otp_code: ["Durasi OTP telah kadaluarsa (lebih dari 5 menit). Data Anda dihapus, silakan registrasi ulang."] },
-        redirect: "/register-admin",
-      });
-    }
-    return res.status(422).json({ errors: { otp_code: ["Kode OTP salah. Silakan periksa kembali email Anda."] } });
+  let userId: number;
+  let username: string;
+  try {
+    const decoded = Buffer.from(String(verify_token), "base64url").toString("utf8");
+    const separator = decoded.indexOf(":");
+    if (separator <= 0) throw new Error("invalid token");
+    userId = Number(decoded.slice(0, separator));
+    username = decoded.slice(separator + 1);
+    if (!Number.isInteger(userId) || !username) throw new Error("invalid token");
+  } catch {
+    return res.status(422).json({ errors: { otp_code: ["Sesi verifikasi tidak valid. Silakan daftar ulang."] }, redirect: "/register-owner" });
   }
 
-  const user = await UserModel.findUserByUsername(verifyUsername);
-  if (!user) {
-    return res.status(400).json({ errors: { username: ["User tidak ditemukan."] }, redirect: "/register-admin" });
+  const user = await UserModel.findUserById(userId);
+  if (!user || user.username !== username || user.role !== "owner") {
+    return res.status(422).json({ errors: { otp_code: ["Akun verifikasi tidak ditemukan."] }, redirect: "/register-owner" });
+  }
+
+  if (user.emailVerifiedAt) {
+    return res.status(409).json({ errors: { otp_code: ["Email sudah diverifikasi. Silakan login."] }, redirect: "/login" });
+  }
+
+  const otp = await OtpModel.findLatestOtp(username);
+  if (!otp) {
+    return res.status(422).json({ errors: { otp_code: ["Kode OTP tidak ditemukan atau sudah tidak berlaku."] } });
+  }
+
+  if (otp.expiresAt.getTime() < Date.now()) {
+    await OtpModel.deleteOtpsByUsername(username);
+    return res.status(422).json({ errors: { otp_code: ["Kode OTP sudah kedaluwarsa. Silakan daftar ulang."] }, redirect: "/register-owner" });
+  }
+
+  if (String(otp_code).trim() !== otp.otpCode) {
+    return res.status(422).json({ errors: { otp_code: ["Kode OTP salah."] } });
   }
 
   await UserModel.markEmailVerified(user.id);
-  await OtpModel.deleteOtpsByUsername(verifyUsername);
+  await OtpModel.deleteOtpsByUsername(username);
 
-  const token = signSession({ userId: user.id, username: user.username });
-  return res.json({ success: true, message: "Verifikasi berhasil, selamat datang!", redirect: "/admin", token });
+  return res.json({
+    success: true,
+    message: "Akun berhasil diverifikasi.",
+    token: signSession({ userId: user.id, username: user.username }),
+    redirect: "/admin",
+  });
 }
 
 export async function login(req: Request, res: Response) {
@@ -115,9 +157,13 @@ export async function login(req: Request, res: Response) {
     return res.status(422).json({ errors: { username: ["Username dan password wajib diisi."] } });
   }
 
-  const user = await UserModel.findUserByUsername(username);
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  const user = await UserModel.findUserByUsername(normalizeUsername(username));
+  if (!user || user.role !== "owner" || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ errors: { username: ["Username atau password salah."] } });
+  }
+
+  if (!user.emailVerifiedAt) {
+    return res.status(403).json({ errors: { username: ["Akun belum diverifikasi. Silakan selesaikan verifikasi OTP dari email Anda."] } });
   }
 
   const token = signSession({ userId: user.id, username: user.username });
@@ -125,11 +171,18 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function logout(_req: Request, res: Response) {
-  // Stateless JWT: cukup minta klien menghapus token yang tersimpan.
   return res.json({ success: true, redirect: "/login" });
 }
 
 export async function me(req: Request, res: Response) {
   const user = (req as any).user;
-  return res.json({ data: { id: user.id, name: user.name, username: user.username, email: user.email } });
+  return res.json({
+    data: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: "owner",
+    },
+  });
 }
