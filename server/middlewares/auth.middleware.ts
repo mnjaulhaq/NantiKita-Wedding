@@ -2,10 +2,13 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { db } from "../config/db";
 
-const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+const SECRET =
+  process.env.JWT_SECRET ||
+  (process.env.NODE_ENV === "production" ? "" : "dev-secret-change-me");
+if (!SECRET) throw new Error("JWT_SECRET wajib diset di production.");
 
 export type SessionPayload = {
-  userId: number;
+  userId: string;
   username: string;
 };
 
@@ -15,23 +18,19 @@ export function signSession(payload: SessionPayload) {
 
 export function verifySession(token: string): SessionPayload | null {
   try {
-    return jwt.verify(token, SECRET) as SessionPayload;
-  } catch {
-    return null;
-  }
-}
+    const payload = jwt.verify(token, SECRET);
+    if (typeof payload !== "object" || payload === null) return null;
+    if (
+      (typeof payload.userId !== "string" &&
+        typeof payload.userId !== "number") ||
+      typeof payload.username !== "string"
+    ) {
+      return null;
+    }
 
-// Token pendek untuk jembatan antara /register -> /verify-otp (pengganti
-// cookie session sementara "verify_username"/"verify_email" di versi Laravel/Next monolit).
-export function signPendingVerification(username: string, email: string) {
-  return jwt.sign({ username, email, purpose: "verify-otp" }, SECRET, { expiresIn: "10m" });
-}
-
-export function verifyPendingVerification(token: string): { username: string; email: string } | null {
-  try {
-    const payload = jwt.verify(token, SECRET) as { username: string; email: string; purpose: string };
-    if (payload.purpose !== "verify-otp") return null;
-    return { username: payload.username, email: payload.email };
+    const userId = BigInt(payload.userId);
+    if (userId <= 0n) return null;
+    return { userId: userId.toString(), username: payload.username };
   } catch {
     return null;
   }
@@ -40,22 +39,30 @@ export function verifyPendingVerification(token: string): { username: string; em
 function getBearerToken(req: Request): string | null {
   const header = req.headers.authorization;
   if (header && header.startsWith("Bearer ")) return header.slice(7);
-  // Fallback lewat query string, dipakai untuk link unduh langsung (mis. <a href=".../pdf?token=...">)
-  // yang tidak bisa menyertakan header Authorization.
-  const queryToken = req.query.token;
-  if (typeof queryToken === "string") return queryToken;
   return null;
 }
 
-// Middleware setara `middleware('auth')` di Laravel. Menempelkan req.user kalau valid.
-export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+// Middleware auth: hanya akun owner yang boleh masuk ke area aplikasi.
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const token = getBearerToken(req);
   const session = token ? verifySession(token) : null;
   if (!session) return res.status(401).json({ message: "Unauthorized" });
 
-  const user = await db.user.findUnique({ where: { id: session.userId } });
-  if (!user) return res.status(401).json({ message: "Unauthorized" });
+  const user = await db.user.findUnique({
+    where: { id: BigInt(session.userId) },
+  });
+  if (!user || user.role !== "owner")
+    return res.status(401).json({ message: "Unauthorized" });
 
   (req as Request & { user: typeof user }).user = user;
   next();
+}
+
+// Semua owner memiliki akses penuh ke seluruh data.
+export function getScope(_req: Request): { userId?: bigint } {
+  return {};
 }

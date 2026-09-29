@@ -15,8 +15,10 @@ model User {
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(0)
   password        String    @db.VarChar(255)
   remember_token  String?   @db.VarChar(100)
+  role            String    @default("owner") @db.VarChar(255)
   createdAt       DateTime? @map("created_at") @db.Timestamp(0)
   updatedAt       DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  weddings        Wedding[]
 
   @@map("users")
 }
@@ -43,10 +45,13 @@ model Wedding {
   tema         String         @db.VarChar(255)
   paket        weddings_paket @default(basic)
   musikUrl     String?        @map("musik_url") @db.VarChar(255)
+  userId       BigInt?        @map("user_id") @db.UnsignedBigInt
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt    DateTime?      @map("created_at") @db.Timestamp(0)
   updatedAt    DateTime?      @updatedAt @map("updated_at") @db.Timestamp(0)
   rsvps        Rsvp[]
 
+  @@index([userId], map: "weddings_user_id_idx")
   @@map("weddings")
 }
 
@@ -127,7 +132,7 @@ model migrations {
 
 model password_reset_tokens {
   email      String    @id @db.VarChar(255)
-  token      String    @db.VarChar(255)
+  token      String   @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
 }
 

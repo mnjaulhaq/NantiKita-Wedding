@@ -33,11 +33,12 @@ panggil **controllers** (logic) → controllers pakai **models** (query Prisma).
 cd server
 cp .env.example .env      # isi JWT_SECRET, dsb
 npm install
-npx prisma migrate dev    # generate DB dari prisma/schema.prisma
+npm install    # generate DB dari prisma/schema.prisma
 npm run dev                # jalan di http://localhost:4000
 ```
 
 Endpoint utama:
+
 - `POST /api/auth/register|verify-otp|login|logout`, `GET /api/auth/me`
 - `GET/POST /api/admin/weddings`, `GET/PUT/DELETE /api/admin/weddings/:id`
 - `GET /api/admin/weddings/:id/rsvps`, `GET /api/admin/weddings/:id/pdf`
@@ -74,14 +75,14 @@ diizinkan lewat CORS. Ubah kalau deploy ke domain lain.
 
 ## Pemetaan fitur dari Laravel
 
-| Laravel | Server (Express) | Client (Next.js) |
-|---|---|---|
-| `AuthController` | `routes/auth.ts` | `login/`, `register-admin/`, `verify-otp/` |
-| `Admin/WeddingController` | `routes/admin.ts` | `admin/*` |
-| `WeddingViewController` | `GET /api/wedding/:slug` di `routes/wedding.ts` | `wedding/[slug]/page.tsx` |
-| `RsvpController` | `POST /api/wedding/:slug/rsvp` | `wedding/[slug]/RsvpForm.tsx` |
-| `resources/views/katalog` | `themes.ts` (statis) | `katalog/page.tsx` |
-| `resources/views/admin/weddings/pdf.blade.php` | `rsvp-pdf.tsx` (react-pdf) | link "Unduh PDF" |
+| Laravel                                        | Server (Express)                                | Client (Next.js)                           |
+| ---------------------------------------------- | ----------------------------------------------- | ------------------------------------------ |
+| `AuthController`                               | `routes/auth.ts`                                | `login/`, `register-admin/`, `verify-otp/` |
+| `Admin/WeddingController`                      | `routes/admin.ts`                               | `admin/*`                                  |
+| `WeddingViewController`                        | `GET /api/wedding/:slug` di `routes/wedding.ts` | `wedding/[slug]/page.tsx`                  |
+| `RsvpController`                               | `POST /api/wedding/:slug/rsvp`                  | `wedding/[slug]/RsvpForm.tsx`              |
+| `resources/views/katalog`                      | `themes.ts` (statis)                            | `katalog/page.tsx`                         |
+| `resources/views/admin/weddings/pdf.blade.php` | `rsvp-pdf.tsx` (react-pdf)                      | link "Unduh PDF"                           |
 
 ## Catatan
 
@@ -91,5 +92,8 @@ diizinkan lewat CORS. Ubah kalau deploy ke domain lain.
   sepenuhnya sesuai desain Blade aslinya (styling detail per tema), itu
   pekerjaan lanjutan yang saya sarankan dikerjakan per-tema (satu per satu)
   supaya hasilnya presisi, bukan digabung sekaligus.
-- Database SQLite (`server/prisma/dev.db`) dan migration sudah dibawa apa
-  adanya dari project lama.
+- Schema server menggunakan MySQL. Sesuaikan `DATABASE_URL` di `server/.env`
+  dengan database lokalmu.
+- Migration init lama masih memakai sintaks SQLite. Jangan jalankan
+  `prisma migrate` ke MySQL sebelum riwayat migration dibaseline atau
+  dikonversi; migration owner-only terbaru sudah memakai sintaks MySQL.

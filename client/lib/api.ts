@@ -1,4 +1,4 @@
-import { getToken } from "./auth-client";
+import { getToken, clearToken } from "./auth-client";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -10,7 +10,14 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
   if (!headers.has("Content-Type") && init.body) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  return fetch(`${API_URL}${path}`, { ...init, headers });
+  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+
+  // Sesi habis/tidak valid: hapus token & arahkan ke login (kecuali endpoint auth itu sendiri).
+  if (res.status === 401 && token && !path.startsWith("/api/auth/") && typeof window !== "undefined") {
+    clearToken();
+    window.location.href = "/login";
+  }
+  return res;
 }
 
 // Dipakai dari Server Components (mis. halaman undangan publik) yang tidak butuh auth,

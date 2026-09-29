@@ -1,24 +1,27 @@
-// Port dari config/themes.php (Laravel).
-// Satu-satunya sumber kebenaran daftar tema. Tambah tema baru = tambah 1 entri di sini.
-export const THEMES: Record<string, { label: string; status: "active" | "dummy" }> = {
-  adatSunda: { label: "Adat Sunda", status: "active" },
-  rustic: { label: "Rustic", status: "active" },
-  cinematic: { label: "Cinematic", status: "active" },
-  floral_luxury: { label: "Floral Luxury", status: "dummy" },
-  modern: { label: "Modern", status: "dummy" },
-  sage: { label: "Sage & Botanical", status: "dummy" },
-  midnight: { label: "Midnight Romantic", status: "dummy" },
-  japandi: { label: "Japandi", status: "dummy" },
+// Pengganti config('themes') dari Laravel (config/themes.php).
+
+// Isi dengan tema yang sama: key = nilai yang disimpan ke DB, status "active" = siap dipakai klien asli.
+
+export type Theme = {
+  key: string;
+  label: string;
+  status: "active" | "dummy";
 };
 
-export function themeOptions() {
-  return Object.entries(THEMES).map(([key, v]) => ({
-    key,
-    label: v.status === "dummy" ? `${v.label} (Belum Siap)` : v.label,
-    status: v.status,
-  }));
-}
+export const THEMES: Theme[] = [
+  { key: "adatSunda", label: "Adat Sunda", status: "active" },
+  { key: "rustic", label: "Rustic", status: "active" },
+  { key: "cinematic", label: "Cinematic", status: "active" },
 
-export function isThemeActive(key: string) {
-  return THEMES[key]?.status === "active";
+  { key: "floral_luxury", label: "Floral Luxury", status: "dummy" },
+  { key: "modern", label: "Modern", status: "dummy" },
+  { key: "sage", label: "Sage & Botanical", status: "dummy" },
+  { key: "midnight", label: "Midnight Romantic", status: "dummy" },
+  { key: "japandi", label: "Japandi", status: "dummy" },
+];
+
+export function isThemeActive(key: string): boolean {
+  const theme = THEMES.find((theme) => theme.key === key);
+
+  return theme?.status === "active";
 }

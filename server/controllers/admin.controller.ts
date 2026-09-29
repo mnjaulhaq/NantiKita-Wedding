@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateRsvpPdf } from "../utils/rsvp-pdf";
 import * as WeddingModel from "../models/wedding.model";
 import * as RsvpModel from "../models/rsvp.model";
+import { getScope } from "../middlewares/auth.middleware";
 
 const HARGA = { basic: 500000, premium: 1000000 };
 
@@ -14,6 +15,12 @@ function slugify(input: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+function parseId(value: string): bigint | null {
+  if (!/^\d+$/.test(value)) return null;
+  const id = BigInt(value);
+  return id > 0n ? id : null;
+}
+
 const weddingSchema = z.object({
   nama_pria: z.string().min(1).max(255),
   nama_wanita: z.string().min(1).max(255),
@@ -21,15 +28,23 @@ const weddingSchema = z.object({
   lokasi_acara: z.string().min(1).max(500),
   paket: z.enum(["basic", "premium"]),
   tema: z.string().min(1),
+  musik_url: z.union([z.string().url().max(500), z.literal("")]).optional(),
 });
 
-export async function dashboard(_req: Request, res: Response) {
-  const [totalWeddings, basicCount, premiumCount, totalGuestsHadir, recentWeddings] = await Promise.all([
-    WeddingModel.countWeddings(),
-    WeddingModel.countWeddings({ paket: "basic" }),
-    WeddingModel.countWeddings({ paket: "premium" }),
-    RsvpModel.sumJumlahHadir(),
-    WeddingModel.listRecentWeddings(4),
+export async function dashboard(req: Request, res: Response) {
+  const scope = getScope(req);
+  const [
+    totalWeddings,
+    basicCount,
+    premiumCount,
+    totalGuestsHadir,
+    recentWeddings,
+  ] = await Promise.all([
+    WeddingModel.countWeddings(scope),
+    WeddingModel.countWeddings(scope, { paket: "basic" }),
+    WeddingModel.countWeddings(scope, { paket: "premium" }),
+    RsvpModel.sumJumlahHadir(scope),
+    WeddingModel.listRecentWeddings(4, scope),
   ]);
 
   const totalRevenue = basicCount * HARGA.basic + premiumCount * HARGA.premium;
@@ -44,13 +59,13 @@ export async function dashboard(_req: Request, res: Response) {
   });
 }
 
-export async function globalRsvps(_req: Request, res: Response) {
-  const rsvps = await RsvpModel.listAllRsvps();
+export async function globalRsvps(req: Request, res: Response) {
+  const rsvps = await RsvpModel.listAllRsvps(getScope(req));
   res.json({ data: rsvps });
 }
 
-export async function listWeddings(_req: Request, res: Response) {
-  const weddings = await WeddingModel.listWeddings();
+export async function listWeddings(req: Request, res: Response) {
+  const weddings = await WeddingModel.listWeddings(getScope(req));
   res.json({ data: weddings });
 }
 
@@ -63,36 +78,45 @@ export async function createWedding(req: Request, res: Response) {
 
   const baseSlug = slugify(`${data.nama_pria}-dan-${data.nama_wanita}`);
   const clash = await WeddingModel.findWeddingBySlug(baseSlug);
-  const finalSlug = clash ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}` : baseSlug;
+  const finalSlug = clash
+    ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`
+    : baseSlug;
 
-  const wedding = await WeddingModel.createWedding(finalSlug, {
-    namaPria: data.nama_pria,
-    namaWanita: data.nama_wanita,
-    tanggalAcara: new Date(data.tanggal_acara),
-    lokasiAcara: data.lokasi_acara,
-    paket: data.paket,
-    tema: data.tema,
-  });
+  const wedding = await WeddingModel.createWedding(
+    finalSlug,
+    {
+      namaPria: data.nama_pria,
+      namaWanita: data.nama_wanita,
+      tanggalAcara: new Date(data.tanggal_acara),
+      lokasiAcara: data.lokasi_acara,
+      paket: data.paket,
+      tema: data.tema,
+      musikUrl: data.musik_url || null,
+    },
+    (req as Request & { user: { id: bigint } }).user.id,
+  );
 
   res.status(201).json({ success: true, data: wedding });
 }
 
 export async function getWedding(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const wedding = await WeddingModel.findWeddingWithRsvps(id);
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ message: "Invalid id" });
+  const wedding = await WeddingModel.findWeddingWithRsvps(id, getScope(req));
   if (!wedding) return res.status(404).json({ message: "Not found" });
   res.json({ data: wedding });
 }
 
 export async function updateWedding(req: Request, res: Response) {
-  const id = Number(req.params.id);
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ message: "Invalid id" });
   const parsed = weddingSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
   }
   const data = parsed.data;
 
-  const existing = await WeddingModel.findWeddingById(id);
+  const existing = await WeddingModel.findWeddingById(id, getScope(req));
   if (!existing) return res.status(404).json({ message: "Not found" });
 
   const wedding = await WeddingModel.updateWedding(id, {
@@ -102,14 +126,16 @@ export async function updateWedding(req: Request, res: Response) {
     lokasiAcara: data.lokasi_acara,
     paket: data.paket,
     tema: data.tema,
+    musikUrl: data.musik_url || null,
   });
 
   res.json({ success: true, data: wedding });
 }
 
 export async function deleteWedding(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const existing = await WeddingModel.findWeddingById(id);
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ message: "Invalid id" });
+  const existing = await WeddingModel.findWeddingById(id, getScope(req));
   if (!existing) return res.status(404).json({ message: "Not found" });
 
   await WeddingModel.deleteWedding(id);
@@ -117,15 +143,17 @@ export async function deleteWedding(req: Request, res: Response) {
 }
 
 export async function weddingRsvps(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const wedding = await WeddingModel.findWeddingWithRsvps(id);
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ message: "Invalid id" });
+  const wedding = await WeddingModel.findWeddingWithRsvps(id, getScope(req));
   if (!wedding) return res.status(404).json({ message: "Not found" });
   res.json({ data: wedding });
 }
 
 export async function downloadPdf(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const wedding = await WeddingModel.findWeddingWithRsvps(id);
+  const id = parseId(req.params.id);
+  if (id === null) return res.status(400).json({ message: "Invalid id" });
+  const wedding = await WeddingModel.findWeddingWithRsvps(id, getScope(req));
   if (!wedding) return res.status(404).json({ message: "Not found" });
 
   const buffer = await generateRsvpPdf(wedding, wedding.rsvps);

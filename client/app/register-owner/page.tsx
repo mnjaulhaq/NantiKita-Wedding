@@ -95,18 +95,6 @@ function validate(field: FieldName, values: Values): string {
   return "";
 }
 
-// Cek ketersediaan username/email ke backend. Kalau request gagal, biarkan lanjut
-// (sama seperti perilaku lama: server tetap memvalidasi lagi saat submit).
-async function isAvailable(path: string, body: Record<string, string>) {
-  try {
-    const res = await apiFetch(path, { method: "POST", body: JSON.stringify(body) });
-    const data = await res.json();
-    return data.available !== false;
-  } catch {
-    return true;
-  }
-}
-
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -119,7 +107,6 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState<Errors>({});
   const [shake, setShake] = useState(false);
-  const [checking, setChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const current = STEPS[step - 1];
@@ -203,7 +190,7 @@ export default function RegisterPage() {
   }
 
   async function next() {
-    if (checking || submitting) return;
+    if (submitting) return;
 
     // A. Validasi format dulu
     let valid = true;
@@ -219,20 +206,6 @@ export default function RegisterPage() {
       setErrors((prev) => ({ ...prev, ...stepErrors }));
       triggerShake();
       return;
-    }
-
-    // B. Cek ke database untuk step username & email
-    if (step === 1 || step === 2) {
-      const field: FieldName = step === 1 ? "username" : "email";
-      const path = step === 1 ? "/api/auth/check-username" : "/api/auth/check-email";
-      setChecking(true);
-      const available = await isAvailable(path, { [field]: values[field].trim() });
-      setChecking(false);
-      if (!available) {
-        setError(field, step === 1 ? "Username sudah terdaftar." : "Email sudah digunakan akun lain.");
-        triggerShake();
-        return;
-      }
     }
 
     if (step === TOTAL_STEPS) {
@@ -254,7 +227,7 @@ export default function RegisterPage() {
       <div className="reg-card">
         {!submitting && (
           <div className="reg-header">
-            <h1>Daftar Akun Admin</h1>
+            <h1>Daftar Akun Owner</h1>
           </div>
         )}
 
@@ -321,7 +294,7 @@ export default function RegisterPage() {
                     </button>
                   )}
                 </div>
-                <button type="submit" className="reg-btnPrimary" disabled={checking}>
+                <button type="submit" className="reg-btnPrimary" disabled={submitting}>
                   {step === TOTAL_STEPS ? "Daftar Akun" : "Berikutnya"}
                 </button>
               </div>
@@ -331,7 +304,7 @@ export default function RegisterPage() {
       </div>
 
       <div className="reg-copyright">
-        &copy; 2026 Admin Panel NANTIKITA. All rights reserved.
+        &copy; 2026 Owner Panel NANTIKITA. All rights reserved.
       </div>
     </main>
   );

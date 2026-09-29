@@ -6,12 +6,15 @@ import adminRouter from "./routers/admin.router";
 import weddingRouter from "./routers/wedding.router";
 
 const app = express();
+app.set("json replacer", (_key: string, value: unknown) =>
+  typeof value === "bigint" ? value.toString() : value,
+);
 
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.static("public"));

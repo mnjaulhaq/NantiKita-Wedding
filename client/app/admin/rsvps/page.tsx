@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { formatRelatif } from "@/lib/format";
 
 type RsvpWithWedding = {
   id: number;
@@ -9,6 +10,8 @@ type RsvpWithWedding = {
   alamat: string;
   status: string;
   jumlahHadir: number;
+  ucapan: string | null;
+  createdAt: string;
   wedding: { namaPria: string; namaWanita: string };
 };
 
@@ -26,39 +29,62 @@ export default function GlobalRsvpsPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">RSVP Global</h1>
-      <table className="w-full text-sm border">
-        <thead>
-          <tr className="bg-gray-50 text-left">
-            <th className="p-2">Pasangan</th>
-            <th className="p-2">Nama Tamu</th>
-            <th className="p-2">Asal</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Jumlah</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rsvps.map((r) => (
-            <tr key={r.id} className="border-t">
-              <td className="p-2">
-                {r.wedding.namaPria} &amp; {r.wedding.namaWanita}
-              </td>
-              <td className="p-2">{r.namaTamu}</td>
-              <td className="p-2">{r.alamat}</td>
-              <td className="p-2">{r.status === "hadir" ? "Hadir" : "Tidak Hadir"}</td>
-              <td className="p-2">{r.jumlahHadir}</td>
-            </tr>
-          ))}
-          {loaded && rsvps.length === 0 && (
-            <tr>
-              <td colSpan={5} className="p-4 text-center text-gray-400">
-                Belum ada RSVP masuk.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="adm-head">
+        <div>
+          <h2>RSVP Global</h2>
+          <p>Konfirmasi kehadiran dan ucapan dari semua undangan klien.</p>
+        </div>
+      </div>
+
+      <div className="adm-card" style={{ padding: 16 }}>
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th>Undangan</th>
+                <th>Nama tamu</th>
+                <th>Konfirmasi</th>
+                <th>Jumlah hadir</th>
+                <th>Ucapan</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rsvps.map((r) => (
+                <tr key={r.id}>
+                  <td className="adm-name" style={{ color: "var(--g-700)" }}>
+                    {r.wedding.namaPria} &amp; {r.wedding.namaWanita}
+                  </td>
+                  <td>
+                    <span className="adm-name">{r.namaTamu}</span>
+                    {r.alamat && <div className="adm-sub">{r.alamat}</div>}
+                  </td>
+                  <td>
+                    <StatusBadge status={r.status} />
+                  </td>
+                  <td>{r.jumlahHadir} orang</td>
+                  <td className="adm-quote" title={r.ucapan ?? ""}>
+                    {r.ucapan ? `“${r.ucapan}”` : "-"}
+                  </td>
+                  <td className="adm-sub">{formatRelatif(r.createdAt)}</td>
+                </tr>
+              ))}
+              {loaded && rsvps.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="adm-empty">
+                    Belum ada konfirmasi masuk dari undangan manapun.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
   );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  return status === "hadir" ? <span className="adm-badge adm-badge-ok">Hadir</span> : <span className="adm-badge adm-badge-no">Absen</span>;
 }

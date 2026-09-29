@@ -1,19 +1,26 @@
 import { db } from "../config/db";
 
-export function listAllRsvps() {
-  return db.rsvp.findMany({ include: { wedding: true }, orderBy: { createdAt: "desc" } });
+export function listAllRsvps(scope: { userId?: bigint } = {}) {
+  return db.rsvp.findMany({
+    where: { wedding: scope },
+    include: { wedding: true },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
-export function sumJumlahHadir() {
-  return db.rsvp.aggregate({ _sum: { jumlahHadir: true }, where: { status: "hadir" } });
+export function sumJumlahHadir(scope: { userId?: bigint } = {}) {
+  return db.rsvp.aggregate({
+    _sum: { jumlahHadir: true },
+    where: { status: "hadir", wedding: scope },
+  });
 }
 
 export function createRsvp(data: {
-  weddingId: number;
+  weddingId: bigint;
   namaTamu: string;
   alamat: string;
   jumlahHadir: number;
-  status: string;
+  status: "hadir" | "tidak_hadir";
   ucapan: string;
 }) {
   return db.rsvp.create({ data });

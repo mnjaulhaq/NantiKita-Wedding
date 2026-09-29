@@ -1,0 +1,222 @@
+/* Konversi dari <style> di login.blade.php.
+   Di-scope ke .login-root supaya tidak mengubah <body> / halaman lain. */
+
+.login-root {
+  position: relative;
+  background-color: #141e17;
+  /* Efek garis grid kotak samar */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(135deg, #141e17 0%, #243329 100%);
+  background-size: 32px 32px, 32px 32px, auto;
+  min-height: 100vh;
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  line-height: 1.5;
+}
+
+.login-root *,
+.login-root *::before,
+.login-root *::after {
+  box-sizing: border-box;
+}
+
+.login-root .form-card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  color: #222222;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: loginCardEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-root .form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes loginCardEntrance {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.login-root .form-card-header {
+  padding: 32px 32px 0 32px;
+  text-align: center;
+}
+
+.login-root .form-card-header h3 {
+  font-weight: 800;
+  font-size: 24px;
+  color: #222222;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.login-root .form-subtitle {
+  font-size: 15px;
+  color: #717171;
+  margin: 4px 0 20px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.login-root .form-card-body {
+  padding: 16px 32px 32px 32px;
+}
+
+.login-root .custom-floating-field {
+  border: 1px solid #b0b0b0;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  position: relative;
+  height: 56px;
+  margin-bottom: 4px;
+}
+
+.login-root .custom-floating-field:focus-within {
+  border: 2px solid #2d3f34 !important;
+  box-shadow: 0 0 0 4px rgba(45, 63, 52, 0.12);
+}
+
+.login-root .custom-floating-field.is-invalid-border {
+  border-color: #c13515 !important;
+  box-shadow: 0 0 0 4px rgba(193, 53, 21, 0.1) !important;
+}
+
+.login-root .custom-floating-field input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 26px 16px 10px 16px !important;
+  font-size: 15px;
+  color: #1a241f !important;
+  outline: none;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+}
+
+.login-root .custom-floating-field label {
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  font-size: 15px;
+  color: #717171;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.3s ease, color 0.3s ease;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.login-root .custom-floating-field input:focus ~ label,
+.login-root .custom-floating-field input:not(:placeholder-shown) ~ label {
+  transform: translateY(-12px) scale(0.75);
+  font-weight: 700;
+  color: #222222;
+}
+
+.login-root .btn-primary-custom {
+  background-color: #2d3f34;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 15px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 16px;
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+}
+
+.login-root .btn-primary-custom:hover {
+  background-color: #1e2d24;
+}
+
+.login-root .btn-primary-custom:active {
+  transform: scale(0.93);
+}
+
+.login-root .btn-primary-custom:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-root .footer-wrap {
+  text-align: center;
+}
+
+.login-root .link-footer {
+  color: #222222;
+  text-decoration: underline;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 24px;
+  transition: color 0.2s;
+}
+
+.login-root .field-error-text {
+  font-size: 13px;
+  color: #c13515;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background-color: #fff8f6;
+  border-left: 3px solid #c13515;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: loginFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes loginFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-root .auth-copyright {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+  opacity: 0;
+  animation: loginCopyrightFadeIn 1.2s ease forwards 0.3s;
+}
+
+@keyframes loginCopyrightFadeIn {
+  to {
+    opacity: 1;
+  }
+}
