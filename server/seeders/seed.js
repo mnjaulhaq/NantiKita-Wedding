@@ -1,11 +1,11 @@
-import { db } from "../config/db";
-
+import { db } from "../config/db.js";
 // Seed contoh: tambahkan data awal di sini kalau perlu (mis. akun admin default).
 // Jalankan lewat `npx prisma db seed`.
 async function main() {
-  console.log("Tidak ada seed default. Tambahkan data awal di seeders/seed.ts sesuai kebutuhan.");
+  console.log(
+    "Tidak ada seed default. Tambahkan data awal di seeders/seed.js sesuai kebutuhan.",
+  );
 }
-
 main()
   .catch((e) => {
     console.error(e);

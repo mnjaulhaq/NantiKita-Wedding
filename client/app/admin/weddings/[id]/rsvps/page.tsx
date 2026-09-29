@@ -16,7 +16,12 @@ type Rsvp = {
   createdAt: string;
 };
 
-type Wedding = { id: number; namaPria: string; namaWanita: string; rsvps: Rsvp[] };
+type Wedding = {
+  id: number;
+  namaPria: string;
+  namaWanita: string;
+  rsvps: Rsvp[];
+};
 
 export default function WeddingRsvpsPage() {
   const params = useParams<{ id: string }>();
@@ -31,18 +36,25 @@ export default function WeddingRsvpsPage() {
     });
   }, [params.id]);
 
-  if (notFound) return <p className="adm-error" role="alert">Data klien tidak ditemukan.</p>;
+  if (notFound)
+    return (
+      <p className="adm-error" role="alert">
+        Data klien tidak ditemukan.
+      </p>
+    );
   if (!wedding) return <p className="adm-muted">Memuat...</p>;
+
+  const weddingId = wedding.id;
 
   // Link unduh PDF butuh token lewat query string karena ini <a> biasa, bukan fetch.
   async function downloadPdf() {
     try {
-      const res = await apiFetch(`/api/admin/weddings/${wedding.id}/pdf`);
+      const res = await apiFetch(`/api/admin/weddings/${weddingId}/pdf`);
       if (!res.ok) throw new Error();
       const url = URL.createObjectURL(await res.blob());
       const a = document.createElement("a");
       a.href = url;
-      a.download = `rsvp-${wedding.id}.pdf`;
+      a.download = `rsvp-${weddingId}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -50,20 +62,30 @@ export default function WeddingRsvpsPage() {
     }
   }
 
-  const totalHadir = wedding.rsvps.filter((r) => r.status === "hadir").reduce((sum, r) => sum + r.jumlahHadir, 0);
-  const totalTidakHadir = wedding.rsvps.filter((r) => r.status === "tidak_hadir").length;
+  const totalHadir = wedding.rsvps
+    .filter((r) => r.status === "hadir")
+    .reduce((sum, r) => sum + r.jumlahHadir, 0);
+  const totalTidakHadir = wedding.rsvps.filter(
+    (r) => r.status === "tidak_hadir",
+  ).length;
 
   return (
     <>
       <div className="adm-head">
         <div>
-          <Link href="/admin/weddings" className="adm-back">← Kembali ke Data Client</Link>
+          <Link href="/admin/weddings" className="adm-back">
+            ← Kembali ke Data Client
+          </Link>
           <h2>
             {wedding.namaPria} &amp; {wedding.namaWanita}
           </h2>
           <p>Daftar kehadiran tamu (RSVP)</p>
         </div>
-        <button type="button" onClick={downloadPdf} className="adm-btn adm-btn-primary">
+        <button
+          type="button"
+          onClick={downloadPdf}
+          className="adm-btn adm-btn-primary"
+        >
           Unduh PDF
         </button>
       </div>
@@ -71,15 +93,24 @@ export default function WeddingRsvpsPage() {
       <div className="adm-stats adm-stats-3">
         <div className="adm-stat hi">
           <span>Tamu hadir</span>
-          <strong>{totalHadir}<em>orang</em></strong>
+          <strong>
+            {totalHadir}
+            <em>orang</em>
+          </strong>
         </div>
         <div className="adm-stat">
           <span>Berhalangan hadir</span>
-          <strong>{totalTidakHadir}<em>tamu</em></strong>
+          <strong>
+            {totalTidakHadir}
+            <em>tamu</em>
+          </strong>
         </div>
         <div className="adm-stat">
           <span>Ucapan masuk</span>
-          <strong>{wedding.rsvps.length}<em>ucapan</em></strong>
+          <strong>
+            {wedding.rsvps.length}
+            <em>ucapan</em>
+          </strong>
         </div>
       </div>
 
@@ -103,16 +134,24 @@ export default function WeddingRsvpsPage() {
                     {r.alamat && <div className="adm-sub">{r.alamat}</div>}
                   </td>
                   <td>
-                    {r.status === "hadir" ? <span className="adm-badge adm-badge-ok">Hadir</span> : <span className="adm-badge adm-badge-no">Absen</span>}
+                    {r.status === "hadir" ? (
+                      <span className="adm-badge adm-badge-ok">Hadir</span>
+                    ) : (
+                      <span className="adm-badge adm-badge-no">Absen</span>
+                    )}
                   </td>
                   <td>{r.jumlahHadir} orang</td>
-                  <td className="adm-quote" title={r.ucapan ?? ""}>{r.ucapan ? `“${r.ucapan}”` : "-"}</td>
+                  <td className="adm-quote" title={r.ucapan ?? ""}>
+                    {r.ucapan ? `“${r.ucapan}”` : "-"}
+                  </td>
                   <td className="adm-sub">{formatRelatif(r.createdAt)}</td>
                 </tr>
               ))}
               {wedding.rsvps.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="adm-empty">Belum ada tamu yang mengisi konfirmasi kehadiran.</td>
+                  <td colSpan={5} className="adm-empty">
+                    Belum ada tamu yang mengisi konfirmasi kehadiran.
+                  </td>
                 </tr>
               )}
             </tbody>

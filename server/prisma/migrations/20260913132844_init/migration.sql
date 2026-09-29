@@ -1,59 +1,58 @@
--- CreateTable
-CREATE TABLE "users" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "email_verified_at" DATETIME,
-    "password" TEXT NOT NULL,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" DATETIME NOT NULL
-);
+CREATE TABLE `users` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `username` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NOT NULL,
+    `email_verified_at` TIMESTAMP(0) NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `remember_token` VARCHAR(100) NULL,
+    `created_at` TIMESTAMP(0) NULL,
+    `updated_at` TIMESTAMP(0) NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `users_username_unique` (`username`),
+    UNIQUE INDEX `users_email_unique` (`email`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE "otps" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "username" TEXT NOT NULL,
-    "otp_code" TEXT NOT NULL,
-    "expires_at" DATETIME NOT NULL,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" DATETIME NOT NULL
-);
+CREATE TABLE `otps` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(255) NOT NULL,
+    `otp_code` VARCHAR(255) NOT NULL,
+    `expires_at` TIMESTAMP(0) NOT NULL,
+    `created_at` TIMESTAMP(0) NULL,
+    `updated_at` TIMESTAMP(0) NULL,
+    PRIMARY KEY (`id`),
+    INDEX `otps_username_index` (`username`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE "weddings" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "slug" TEXT NOT NULL,
-    "nama_pria" TEXT NOT NULL,
-    "nama_wanita" TEXT NOT NULL,
-    "tanggal_acara" DATETIME NOT NULL,
-    "lokasi_acara" TEXT NOT NULL,
-    "tema" TEXT NOT NULL,
-    "paket" TEXT NOT NULL DEFAULT 'basic',
-    "musik_url" TEXT,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" DATETIME NOT NULL
-);
+CREATE TABLE `weddings` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `slug` VARCHAR(255) NOT NULL,
+    `nama_pria` VARCHAR(255) NOT NULL,
+    `nama_wanita` VARCHAR(255) NOT NULL,
+    `tanggal_acara` DATE NOT NULL,
+    `lokasi_acara` TEXT NOT NULL,
+    `tema` VARCHAR(255) NOT NULL,
+    `paket` ENUM('basic', 'premium') NOT NULL DEFAULT 'basic',
+    `musik_url` VARCHAR(255) NULL,
+    `created_at` TIMESTAMP(0) NULL,
+    `updated_at` TIMESTAMP(0) NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `weddings_slug_unique` (`slug`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE "rsvps" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "wedding_id" INTEGER NOT NULL,
-    "nama_tamu" TEXT NOT NULL,
-    "alamat" TEXT NOT NULL,
-    "jumlah_hadir" INTEGER NOT NULL DEFAULT 1,
-    "status" TEXT NOT NULL,
-    "ucapan" TEXT,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" DATETIME NOT NULL,
-    CONSTRAINT "rsvps_wedding_id_fkey" FOREIGN KEY ("wedding_id") REFERENCES "weddings" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "weddings_slug_key" ON "weddings"("slug");
+CREATE TABLE `rsvps` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `wedding_id` BIGINT UNSIGNED NOT NULL,
+    `nama_tamu` VARCHAR(255) NOT NULL,
+    `alamat` VARCHAR(255) NOT NULL,
+    `jumlah_hadir` INTEGER NOT NULL DEFAULT 1,
+    `status` ENUM('hadir', 'tidak_hadir') NOT NULL,
+    `ucapan` TEXT NULL,
+    `created_at` TIMESTAMP(0) NULL,
+    `updated_at` TIMESTAMP(0) NULL,
+    PRIMARY KEY (`id`),
+    INDEX `rsvps_wedding_id_foreign` (`wedding_id`),
+    CONSTRAINT `rsvps_wedding_id_foreign`
+        FOREIGN KEY (`wedding_id`) REFERENCES `weddings` (`id`)
+        ON DELETE CASCADE ON UPDATE NO ACTION
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

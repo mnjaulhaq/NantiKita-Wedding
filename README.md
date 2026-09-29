@@ -15,7 +15,7 @@ nantikita/
 │   ├── seeders/      # seed data awal (opsional)
 │   ├── public/       # static assets
 │   ├── prisma/       # schema.prisma + migrations
-│   └── index.ts      # entry point
+│   └── index.js      # entry point
 └── client/   → Next.js (UI saja, port 3000, tidak ada akses DB langsung)
     ├── app/          # halaman (App Router)
     ├── components/   # komponen reusable (form, shell admin, dsb)
@@ -94,6 +94,8 @@ diizinkan lewat CORS. Ubah kalau deploy ke domain lain.
   supaya hasilnya presisi, bukan digabung sekaligus.
 - Schema server menggunakan MySQL. Sesuaikan `DATABASE_URL` di `server/.env`
   dengan database lokalmu.
-- Migration init lama masih memakai sintaks SQLite. Jangan jalankan
-  `prisma migrate` ke MySQL sebelum riwayat migration dibaseline atau
-  dikonversi; migration owner-only terbaru sudah memakai sintaks MySQL.
+- Semua migration Prisma sekarang memakai sintaks MySQL. Untuk database
+  existing, backup dulu dan cocokkan tabel dengan migration init. Tandai
+  migration init sebagai applied agar Prisma tidak membuat ulang tabel yang
+  sudah ada, lalu deploy migration owner-only untuk menambah `role` dan
+  `weddings.user_id`. Jangan jalankan migration sebelum baseline diverifikasi.
