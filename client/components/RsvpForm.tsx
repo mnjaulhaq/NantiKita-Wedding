@@ -3,12 +3,20 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-export default function RsvpForm({ slug }: { slug: string }) {
+// Data yang sudah diisi tamu di halaman gerbang (GerbangTamu), dibawa lewat query string.
+type Initial = {
+  nama_tamu?: string;
+  alamat?: string;
+  status?: string; // "hadir" | "tidak_hadir"
+  jumlah_hadir?: number;
+};
+
+export default function RsvpForm({ slug, initial }: { slug: string; initial?: Initial }) {
   const [form, setForm] = useState({
-    nama_tamu: "",
-    alamat: "",
-    status: "hadir",
-    jumlah_hadir: 1,
+    nama_tamu: initial?.nama_tamu ?? "",
+    alamat: initial?.alamat ?? "",
+    status: initial?.status ?? "hadir",
+    jumlah_hadir: initial?.jumlah_hadir ?? 1,
     ucapan: "",
   });
   const [errors, setErrors] = useState<Record<string, string[]>>({});

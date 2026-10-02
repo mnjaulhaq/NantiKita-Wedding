@@ -16,6 +16,7 @@ export function createUser(data) {
             email: data.email,
             password: data.password,
             role: "owner",
+            createdAt: new Date(),
             emailVerifiedAt: data.emailVerifiedAt ?? null,
         },
     });

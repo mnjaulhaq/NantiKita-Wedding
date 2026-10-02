@@ -11,6 +11,30 @@ export async function getWeddingBySlug(req, res) {
         return res.status(404).json({ message: "Undangan tidak ditemukan." });
     res.json({ data: wedding });
 }
+// Dashboard RSVP untuk pengantin (kata kunci "admin"/"client" di halaman gerbang).
+// Hanya mengirim field yang dibutuhkan, tanpa userId/relasi internal.
+export async function getRsvpsBySlug(req, res) {
+    const wedding = await WeddingModel.findWeddingBySlugWithRsvps(req.params.slug);
+    if (!wedding)
+        return res.status(404).json({ message: "Undangan tidak ditemukan." });
+    res.json({
+        data: {
+            slug: wedding.slug,
+            namaPria: wedding.namaPria,
+            namaWanita: wedding.namaWanita,
+            tanggalAcara: wedding.tanggalAcara,
+            rsvps: wedding.rsvps.map((r) => ({
+                id: r.id,
+                namaTamu: r.namaTamu,
+                alamat: r.alamat,
+                status: r.status,
+                jumlahHadir: r.jumlahHadir,
+                ucapan: r.ucapan,
+                createdAt: r.createdAt,
+            })),
+        },
+    });
+}
 const rsvpSchema = z.object({
     nama_tamu: z
         .string()
