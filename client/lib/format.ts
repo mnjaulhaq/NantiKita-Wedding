@@ -1,7 +1,9 @@
 // Pengganti Carbon (translatedFormat / format / diffForHumans) di Blade.
 const LOCALE = "id-ID";
 
-function toDate(iso: string) {
+// createdAt bisa null (data lama) -> new Date(null) = 1970 ("57 tahun yang lalu"), jadi ditolak di sini.
+function toDate(iso: string | null | undefined) {
+  if (!iso) return null;
   const d = new Date(iso);
   return isNaN(d.getTime()) ? null : d;
 }
@@ -19,7 +21,7 @@ export function formatTanggalPendek(iso: string) {
   return new Intl.DateTimeFormat(LOCALE, { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(d);
 }
 
-export function formatRelatif(iso: string) {
+export function formatRelatif(iso: string | null | undefined) {
   const d = toDate(iso);
   if (!d) return "-";
   const diff = (d.getTime() - Date.now()) / 1000;

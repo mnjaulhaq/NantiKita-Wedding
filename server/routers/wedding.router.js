@@ -3,5 +3,6 @@ import * as WeddingController from "../controllers/wedding.controller.js";
 const router = Router();
 router.get("/themes", WeddingController.listThemes);
 router.get("/wedding/:slug", WeddingController.getWeddingBySlug);
+router.get("/wedding/:slug/rsvps", WeddingController.getRsvpsBySlug);
 router.post("/wedding/:slug/rsvp", WeddingController.submitRsvp);
 export default router;

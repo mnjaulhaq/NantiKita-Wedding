@@ -1,101 +1,50 @@
-# NantiKita — struktur baru (client & server terpisah)
+# NantiKita Wedding
 
-Project ini sudah dipecah dari 1 project Next.js gabungan menjadi 2 project independen,
-mengikuti pemisahan yang sama seperti backend Laravel + frontend terpisah sebelumnya:
+Platform undangan pernikahan digital: owner membuat undangan untuk klien, tamu mengisi RSVP dan ucapan, laporan kehadiran bisa diunduh sebagai PDF.
 
+| Folder | Isi |
+|---|---|
+| `client/` | Next.js 16 + React 19 + Tailwind 4 (port 3000) |
+| `server/` | Express 4 + Prisma 5 + MySQL (port 4000) |
+
+## Menjalankan di komputer lokal
+
+Prasyarat: Node.js 20+ dan MySQL (mis. Laragon/XAMPP) yang sudah menyala.
+
+```bash
+# 1. Server
+cd server
+cp .env.example .env          # lalu isi DATABASE_URL dan JWT_SECRET
+npm install
+npx prisma migrate deploy     # membuat tabel di database
+npm run dev                   # http://localhost:4000  (cek: /health)
+
+# 2. Client (terminal lain)
+cd client
+cp .env.local.example .env.local   # JWT_SECRET harus sama dengan server
+npm install
+npm run dev                        # http://localhost:3000
 ```
-nantikita/
-├── server/   → Express + Prisma (REST API, port 4000)
-│   ├── config/       # koneksi Prisma, mailer, daftar tema
-│   ├── controllers/  # logic tiap endpoint (setara Controller Laravel)
-│   ├── middlewares/  # requireAuth + helper JWT
-│   ├── models/       # repository, pembungkus query Prisma per tabel
-│   ├── routers/      # definisi route, tinggal panggil controller
-│   ├── utils/        # generator PDF RSVP
-│   ├── seeders/      # seed data awal (opsional)
-│   ├── public/       # static assets
-│   ├── prisma/       # schema.prisma + migrations
-│   └── index.js      # entry point
-└── client/   → Next.js (UI saja, port 3000, tidak ada akses DB langsung)
-    ├── app/          # halaman (App Router)
-    ├── components/   # komponen reusable (form, shell admin, dsb)
-    ├── lib/          # helper fetch ke API + auth token
-    └── middleware.ts # proteksi rute /admin
-```
 
-## server/ (backend)
+Buat database kosong bernama `nantikita_wedding` sebelum menjalankan `migrate deploy`.
 
-Port dari logic Laravel (`AuthController`, `WeddingController`, `RsvpController`,
-`WeddingViewController`) mengikuti pola MVC: **routers** menerima request →
-panggil **controllers** (logic) → controllers pakai **models** (query Prisma).
+### Akun owner pertama
+
+Daftar lewat `/register-owner` (kode OTP dikirim ke email; kalau `SMTP_HOST` kosong, kode muncul di console server), atau buat langsung dari terminal:
 
 ```bash
 cd server
-cp .env.example .env      # isi JWT_SECRET, dsb
-npm install
-npm install    # generate DB dari prisma/schema.prisma
-npm run dev                # jalan di http://localhost:4000
+npm run create-owner -- "Nama" username email@contoh.com passwordminimal8
 ```
 
-Endpoint utama:
+## Alur kerja Git berdua
 
-- `POST /api/auth/register|verify-otp|login|logout`, `GET /api/auth/me`
-- `GET/POST /api/admin/weddings`, `GET/PUT/DELETE /api/admin/weddings/:id`
-- `GET /api/admin/weddings/:id/rsvps`, `GET /api/admin/weddings/:id/pdf`
-- `GET /api/admin/dashboard`, `GET /api/admin/rsvps`
-- `GET /api/wedding/:slug`, `POST /api/wedding/:slug/rsvp`, `GET /api/themes`
+- Jangan commit `.env`, `.env.local`, `node_modules`, `dist`, atau dump `.sql`. Semuanya sudah ada di `.gitignore`.
+- Setelah `git pull`, jalankan `npm install` di `server/` dan `client/` jika `package.json` berubah.
+- Jika ada migrasi Prisma baru, jalankan `npx prisma migrate deploy` di `server/`.
+- Kalau menambah kolom/tabel, ubah `schema.prisma` lalu `npx prisma migrate dev --name nama_perubahan` dan commit folder `prisma/migrations/`.
 
-Semua endpoint `/api/admin/*` wajib header `Authorization: Bearer <token>`
-(kecuali link unduh PDF, yang boleh pakai `?token=`).
+## Struktur singkat
 
-## client/ (frontend)
-
-Next.js App Router, isinya cuma halaman (login, register, OTP, katalog, halaman
-undangan tamu, dan admin panel). Tidak ada `src/app/api` lagi — semua data
-diambil lewat `fetch` ke `server/`.
-
-```bash
-cd client
-cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL + JWT_SECRET (HARUS SAMA dgn server/.env)
-npm install
-npm run dev                         # jalan di http://localhost:3000
-```
-
-### Kenapa JWT_SECRET ada di kedua project?
-
-Server menerbitkan token JWT saat login (dikirim di body response, disimpan
-klien di cookie `nk_token`). `client/src/middleware.ts` perlu **memverifikasi**
-tanda tangan token itu sendiri (untuk memproteksi rute `/admin/*`) tanpa
-memanggil server — makanya butuh `JWT_SECRET` yang sama persis di kedua sisi.
-
-### CORS
-
-`server/.env` punya `CLIENT_ORIGIN` (default `http://localhost:3000`) yang
-diizinkan lewat CORS. Ubah kalau deploy ke domain lain.
-
-## Pemetaan fitur dari Laravel
-
-| Laravel                                        | Server (Express)                                | Client (Next.js)                           |
-| ---------------------------------------------- | ----------------------------------------------- | ------------------------------------------ |
-| `AuthController`                               | `routes/auth.ts`                                | `login/`, `register-admin/`, `verify-otp/` |
-| `Admin/WeddingController`                      | `routes/admin.ts`                               | `admin/*`                                  |
-| `WeddingViewController`                        | `GET /api/wedding/:slug` di `routes/wedding.ts` | `wedding/[slug]/page.tsx`                  |
-| `RsvpController`                               | `POST /api/wedding/:slug/rsvp`                  | `wedding/[slug]/RsvpForm.tsx`              |
-| `resources/views/katalog`                      | `themes.ts` (statis)                            | `katalog/page.tsx`                         |
-| `resources/views/admin/weddings/pdf.blade.php` | `rsvp-pdf.tsx` (react-pdf)                      | link "Unduh PDF"                           |
-
-## Catatan
-
-- Tema undangan (`adatSunda`, `cinematic`, `floral_luxury`, `rustic`) di versi
-  ini masih pakai 1 tampilan generik di `wedding/[slug]/page.tsx` — persis
-  seperti kondisi sebelum dipisah. Kalau kamu mau tampilan tiap tema dibuat
-  sepenuhnya sesuai desain Blade aslinya (styling detail per tema), itu
-  pekerjaan lanjutan yang saya sarankan dikerjakan per-tema (satu per satu)
-  supaya hasilnya presisi, bukan digabung sekaligus.
-- Schema server menggunakan MySQL. Sesuaikan `DATABASE_URL` di `server/.env`
-  dengan database lokalmu.
-- Semua migration Prisma sekarang memakai sintaks MySQL. Untuk database
-  existing, backup dulu dan cocokkan tabel dengan migration init. Tandai
-  migration init sebagai applied agar Prisma tidak membuat ulang tabel yang
-  sudah ada, lalu deploy migration owner-only untuk menambah `role` dan
-  `weddings.user_id`. Jangan jalankan migration sebelum baseline diverifikasi.
+- `server/models/` akses database, `controllers/` logika, `routers/` rute, `middlewares/` auth dan rate limit.
+- `client/app/admin/` panel owner, `client/app/wedding/[slug]/` undangan untuk tamu, `client/app/katalog/` halaman katalog.

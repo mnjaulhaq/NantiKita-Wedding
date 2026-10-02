@@ -18,5 +18,5 @@ export function sumJumlahHadir(scope = {}) {
     });
 }
 export function createRsvp(data) {
-    return db.rsvp.create({ data });
+    return db.rsvp.create({ data: { ...data, createdAt: new Date() } });
 }
