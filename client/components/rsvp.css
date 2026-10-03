@@ -1,0 +1,337 @@
+/* Gaya halaman konfirmasi kehadiran (RSVP): versi terang & natural dari desain "gerbang".
+   Satu tampilan untuk semua template. Untuk menyesuaikan dengan template tertentu,
+   cukup timpa variabel --rv-* (mis. .tema-rustic .rv-root { --rv-gold: #7a5a3a; }).
+   Animasi (gt-fade-in-slide, gt-badge-in, gt-shimmer) dan font script/Montserrat
+   dipakai bersama dari gerbang-tamu.css. */
+
+.rv-root {
+  --rv-bg-top: #fffdf8;
+  --rv-bg-bottom: #f3ecdf;
+  --rv-text: #3b3126;
+  --rv-muted: #7d705e;
+  --rv-label: #8a6a2f; /* emas gelap: tetap terbaca di latar terang */
+  --rv-gold: #c29a3e;
+  --rv-gold-light: #dcb85f;
+  --rv-gold-dark: #8a6420;
+  --rv-card: rgb(255 255 255 / 0.72);
+  --rv-border: #e7dcc6;
+  --rv-field: #fffdf9;
+  --rv-error: #b4352a;
+  --rv-sage: #cddcc4;
+
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--rv-bg-top), var(--rv-bg-bottom));
+  color: var(--rv-text);
+  color-scheme: light; /* jangan ikut mode gelap OS/browser */
+  font-family: var(--font-gt-montserrat), sans-serif;
+}
+
+/* Ornamen pendar emas & hijau sage di pojok */
+.rv-glow {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.rv-glow-gold {
+  top: -18%;
+  left: -18%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgb(220 184 95 / 0.35), transparent 70%);
+  filter: blur(40px);
+}
+.rv-glow-sage {
+  right: -18%;
+  bottom: -18%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgb(205 220 196 / 0.7), transparent 70%);
+  filter: blur(50px);
+}
+
+.rv-wrap {
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Header */
+.rv-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6em;
+  text-transform: uppercase;
+  color: var(--rv-label);
+}
+.rv-title {
+  margin-top: 0.75rem;
+  font-family: var(--font-alex-brush), cursive;
+  font-size: 3.75rem;
+  line-height: 1.15;
+  font-weight: 400;
+  background: linear-gradient(180deg, var(--rv-gold-light), var(--rv-gold) 45%, var(--rv-gold-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (min-width: 768px) {
+  .rv-title {
+    font-size: 4.5rem;
+  }
+}
+.rv-date {
+  margin-top: 0.75rem;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rv-label);
+}
+
+/* Kartu */
+.rv-form {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2.5rem;
+}
+.rv-cards {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
+}
+.rv-card {
+  border: 1px solid var(--rv-border);
+  border-radius: 1rem;
+  background: var(--rv-card);
+  padding: 1.5rem;
+  text-align: left;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 2px rgb(120 90 30 / 0.05), 0 12px 32px rgb(120 90 30 / 0.08);
+  transition: transform 0.3s, border-color 0.3s;
+}
+.rv-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--rv-gold) 55%, transparent);
+}
+.rv-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rv-verified {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rv-verified p {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rv-label);
+}
+.rv-verified span {
+  border: 1px solid color-mix(in srgb, var(--rv-gold) 35%, transparent);
+  background: color-mix(in srgb, var(--rv-gold) 12%, transparent);
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--rv-label);
+}
+
+.rv-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rv-muted);
+  transition: color 0.3s;
+}
+.rv-card:hover .rv-label,
+.rv-field-group:focus-within .rv-label {
+  color: var(--rv-label);
+}
+
+/* Input nama (garis bawah) */
+.rv-name-row {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+.rv-name-row.is-editing {
+  border-bottom: 2px solid var(--rv-border);
+  transition: border-color 0.3s;
+}
+.rv-name-row.is-editing:focus-within {
+  border-color: var(--rv-gold);
+}
+.rv-name-input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--rv-text);
+}
+.rv-name-input::placeholder {
+  color: #b9ad9a;
+}
+.rv-name-input:focus {
+  outline: none;
+}
+.rv-name-input.is-locked {
+  text-align: center;
+}
+.rv-edit-btn {
+  margin-left: 0.5rem;
+  color: var(--rv-muted);
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+.rv-edit-btn:hover {
+  color: var(--rv-gold-dark);
+  transform: scale(1.1);
+}
+
+/* Field dengan ikon */
+.rv-field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.rv-icon {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--rv-muted);
+  pointer-events: none;
+  transition: color 0.3s;
+}
+.rv-field-group:focus-within .rv-icon,
+.rv-icon.is-on {
+  color: var(--rv-gold-dark);
+}
+.rv-chevron {
+  position: absolute;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--rv-muted);
+  pointer-events: none;
+  transition: transform 0.3s;
+}
+.rv-field-group:focus-within .rv-chevron {
+  transform: rotate(180deg);
+}
+.rv-field {
+  width: 100%;
+  border: 1px solid var(--rv-border);
+  border-radius: 0.75rem;
+  background: var(--rv-field);
+  color: var(--rv-text);
+  padding: 0.625rem 1rem 0.625rem 2.25rem;
+  font-size: 16px; /* 16px: mencegah zoom otomatis di iOS */
+  font-weight: 600;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.rv-field::placeholder {
+  color: #b9ad9a;
+  font-weight: 500;
+}
+.rv-field:hover:not(:disabled) {
+  border-color: #cdbf9f;
+}
+.rv-field:focus {
+  outline: none;
+  border-color: var(--rv-gold);
+  background: #fff;
+}
+select.rv-field {
+  appearance: none;
+  cursor: pointer;
+}
+select.rv-field:invalid {
+  color: #b9ad9a;
+  font-weight: 500;
+}
+.rv-field:disabled {
+  cursor: not-allowed;
+  background: #f1ece2;
+  color: #b9ad9a;
+}
+.rv-field.is-center {
+  text-align: center;
+}
+
+.rv-error {
+  margin-top: 0.375rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--rv-error);
+}
+
+.rv-hint {
+  margin-top: 1.25rem;
+  font-size: 10px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--rv-muted);
+  user-select: none;
+}
+
+/* Tombol pil emas dengan kilau */
+.rv-button {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--rv-gold-light), var(--rv-gold));
+  padding: 0.875rem 3rem;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #3a2a0c;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgb(194 154 62 / 0.28);
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+}
+.rv-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 10px 26px rgb(194 154 62 / 0.4);
+}
+.rv-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.rv-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.rv-button:focus-visible,
+.rv-edit-btn:focus-visible {
+  outline: 2px solid var(--rv-gold-dark);
+  outline-offset: 3px;
+}

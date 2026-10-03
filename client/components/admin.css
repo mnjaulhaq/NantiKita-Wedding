@@ -38,7 +38,7 @@
 .adm-user b{display:block;font-size:13px;font-weight:700}
 .adm-user small{font-size:12px;color:rgba(255,255,255,.5)}
 .adm-logout button{width:100%;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);
-  background:transparent;color:#fff;font:600 13px inherit;font-family:inherit;cursor:pointer;transition:background .25s}
+  background:transparent;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s}
 .adm-logout button:hover{background:rgba(255,255,255,.1)}
 
 .adm-main{flex:1;min-width:0}
@@ -77,20 +77,31 @@
 .adm-stat.hi span{color:rgba(255,255,255,.65)} .adm-stat.hi strong{color:#fff}
 .adm-stats-3{grid-template-columns:repeat(3,1fr)}
 
-/* Tombol (padanan .btn-primary-custom di login) */
-.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:14px;
-  font:600 14px inherit;font-family:inherit;cursor:pointer;border:1px solid transparent;
-  transition:background-color .3s,transform .3s cubic-bezier(.16,1,.3,1),border-color .3s}
-.adm-btn:active{transform:scale(.95)}
-.adm-btn-primary{background:var(--g-700);color:#fff}
-.adm-btn-primary:hover{background:var(--g-800)}
-.adm-btn-light{background:#fff;color:var(--g-800)}
-.adm-btn-light:hover{background:var(--g-100)}
-.adm-btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
-.adm-btn-ghost:hover{background:var(--g-50);border-color:#cfd6d1}
-.adm-btn-danger{background:#fff;color:var(--danger);border-color:#f0cfc7}
-.adm-btn-danger:hover{background:var(--danger-bg)}
-.adm-btn-sm{padding:6px 12px;border-radius:10px;font-size:13px}
+/* Tombol (padanan .btn-primary-custom di login).
+   Dibuat lebih tegas: border jelas, teks tebal, ikon opsional, dan hover yang terasa. */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:14px;
+  font-family:inherit;font-size:14.5px;font-weight:700;line-height:1.2;cursor:pointer;border:1.5px solid transparent;white-space:nowrap;
+  transition:background-color .3s,color .3s,border-color .3s,box-shadow .35s,transform .35s cubic-bezier(.16,1,.3,1)}
+.adm-btn svg{flex:none;width:1.1em;height:1.1em;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.adm-btn:active{transform:translateY(0) scale(.95)!important;box-shadow:none!important}
+.admin-root .adm-btn-primary{background:var(--g-700);color:#fff;box-shadow:0 2px 6px rgba(20,30,23,.18)}
+.admin-root .adm-btn-light{background:#fff;color:var(--g-800)}
+.admin-root .adm-btn-ghost{background:#fff;color:var(--g-800);border-color:#9aa59e}
+.admin-root .adm-btn-danger{background:#fff;color:var(--danger);border-color:#e0a597}
+.admin-root .adm-btn-outline-light{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+.adm-btn-sm{padding:8px 14px;border-radius:11px;font-size:13.5px;min-height:36px}
+
+/* Hover hanya untuk perangkat dengan mouse (di layar sentuh hover suka "nyangkut") */
+@media(hover:hover){
+  .adm-btn:hover{transform:translateY(-2px)}
+  .adm-btn:hover svg{transform:scale(1.18) rotate(-6deg)}
+  .admin-root .adm-btn-primary:hover{background:var(--g-800);box-shadow:0 8px 18px rgba(20,30,23,.3)}
+  .admin-root .adm-btn-light:hover{background:var(--g-100);box-shadow:0 8px 18px rgba(0,0,0,.25)}
+  .admin-root .adm-btn-ghost:hover{background:var(--g-700);border-color:var(--g-700);color:#fff;box-shadow:0 8px 16px rgba(20,30,23,.22)}
+  .admin-root .adm-btn-danger:hover{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 8px 16px rgba(193,53,21,.3)}
+  .admin-root .adm-btn-outline-light:hover{background:rgba(255,255,255,.16);border-color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+}
+.adm-btn:disabled,.adm-btn:disabled:hover{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* Daftar & tabel */
 .adm-list{display:flex;flex-direction:column}
@@ -110,7 +121,8 @@
 .adm-name{font-weight:700}
 .adm-sub{font-size:12px;color:var(--muted);font-weight:400}
 .adm-quote{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#555;font-style:italic}
-.adm-actions{display:flex;gap:6px;justify-content:center}
+.adm-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:190px;max-width:220px;margin:0 auto}
+.adm-actions > :first-child{grid-column:1/-1}
 .adm-empty{padding:40px 16px;text-align:center;color:var(--muted);font-size:14px}
 .adm-muted{color:var(--muted);font-size:14px}
 .adm-error{padding:10px 14px;border-left:3px solid var(--danger);background:var(--danger-bg);color:var(--danger);border-radius:4px;font-size:13px;font-weight:500}
@@ -124,7 +136,7 @@
 
 /* Kolom tautan undangan */
 .adm-linkbox{display:flex;gap:6px;align-items:center}
-.adm-linkbox input{width:180px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--g-50);font:13px inherit;font-family:inherit;color:#555}
+.adm-linkbox input{width:150px;min-width:0;text-overflow:ellipsis;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--g-50);font-family:inherit;font-size:13px;color:#555}
 .adm-linkbox input:focus{outline:none}
 
 /* Fokus keyboard */
@@ -147,14 +159,13 @@
 .adm-field{display:flex;flex-direction:column}
 .adm-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px}
 .adm-input{width:100%;height:52px;padding:0 16px;border:1px solid #b0b0b0;border-radius:12px;background:#fff;
-  font:15px inherit;font-family:inherit;color:#1a241f;transition:border-color .3s,box-shadow .3s}
+  font-family:inherit;font-size:15px;color:#1a241f;transition:border-color .3s,box-shadow .3s}
 textarea.adm-input{height:auto;padding:14px 16px;resize:vertical;line-height:1.5}
 .adm-input::placeholder{color:#a0a6a2}
 .adm-input:focus{outline:none;border:2px solid var(--g-700);padding-left:15px;box-shadow:0 0 0 4px rgba(45,63,52,.12)}
 textarea.adm-input:focus{padding:13px 15px}
 .adm-hint{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .adm-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:24px;border-top:1px solid var(--line)}
-.adm-btn:disabled{opacity:.6;cursor:not-allowed}
 
 @media(max-width:960px){
   .adm-side{position:fixed;z-index:30;left:0;transform:translateX(-100%);transition:transform .35s cubic-bezier(.16,1,.3,1)}
@@ -165,12 +176,15 @@ textarea.adm-input:focus{padding:13px 15px}
   .adm-stats,.adm-stats-3,.adm-grid-2,.adm-form-grid{grid-template-columns:1fr}
   .adm-hero{padding:26px}.adm-hero h2{font-size:24px}
 }
-@media(prefers-reduced-motion:reduce){.admin-root *{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.admin-root *{transition:none!important}.admin-root *:hover{transform:none!important}}
 
 /* Tombol logout bawaan (Tailwind merah) diselaraskan dengan sidebar */
 .admin-root .adm-logout button{width:100%!important;background:transparent!important;border:1px solid rgba(255,255,255,.2)!important;
   color:#fff!important;border-radius:10px!important;padding:9px 12px!important;box-shadow:none!important;font-weight:600!important;font-size:13px!important}
-.admin-root .adm-logout button:hover{background:rgba(255,255,255,.1)!important}
+.admin-root .adm-logout button{transition:background-color .3s,transform .35s cubic-bezier(.16,1,.3,1)!important}
+.admin-root .adm-logout button:hover{background:rgba(255,255,255,.14)!important}
+@media(hover:hover){.admin-root .adm-logout button:hover{transform:translateY(-2px)}}
+.admin-root .adm-logout button:active{transform:scale(.96)}
 
 /* Dashboard */
 .adm-date{display:inline-block;margin-bottom:12px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
@@ -193,7 +207,10 @@ textarea.adm-input:focus{padding:13px 15px}
 .adm-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
 .adm-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .adm-quick a{padding:14px;border-radius:14px;border:1px solid var(--line);font-size:14px;font-weight:700;transition:background .25s,border-color .25s}
-.adm-quick a:hover{background:var(--g-50);border-color:#cfd6d1}
+.adm-quick a{transition:background .25s,border-color .25s,transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s}
+.adm-quick a:hover{background:var(--g-50);border-color:#9aa59e}
+@media(hover:hover){.adm-quick a:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(20,30,23,.1)}}
+.adm-quick a:active{transform:scale(.97)}
 .adm-quick small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:2px}
 
 /* Form bagian-bagian & pilihan kartu */
@@ -212,3 +229,20 @@ textarea.adm-input:focus{padding:13px 15px}
 .adm-choice.on{border:2px solid var(--g-700);padding:13px 15px;background:var(--g-50);box-shadow:0 0 0 4px rgba(45,63,52,.1)}
 .adm-choice:focus-within{outline:2px solid var(--g-700);outline-offset:2px}
 .adm-choice.off{opacity:.6}
+
+/* Filter per undangan (RSVP Global) */
+.adm-filter{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 16px;margin-bottom:16px;padding:16px 16px 0}
+.adm-filter .adm-field{min-width:260px;flex:0 1 340px}
+.adm-select{width:100%;height:46px;padding:0 42px 0 14px;border:1px solid #b0b0b0;border-radius:12px;background-color:#fff;color:#1a241f;
+  font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%232d3f34'%3E%3Cpath d='M3.2 5.8a.75.75 0 0 1 1.06 0L8 9.54l3.74-3.74a.75.75 0 1 1 1.06 1.06l-4.27 4.27a.75.75 0 0 1-1.06 0L3.2 6.86a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;transition:border-color .3s,box-shadow .3s}
+.adm-select:hover{border-color:var(--g-700)}
+.adm-select:focus{outline:none;border:2px solid var(--g-700);padding-left:13px;box-shadow:0 0 0 4px rgba(45,63,52,.12)}
+.adm-filter-summary{margin-left:auto;padding-bottom:12px;font-size:13.5px;color:var(--muted)}
+.adm-filter-summary b{color:var(--ink)}
+.adm-filter .adm-btn{margin-bottom:0}
+@media(max-width:640px){
+  .adm-filter .adm-field{min-width:0;flex:1 1 100%}
+  .adm-filter-summary{margin-left:0;flex:1 1 100%;padding-bottom:0}
+}

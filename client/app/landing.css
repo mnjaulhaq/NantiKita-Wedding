@@ -1,0 +1,1069 @@
+/* Landing page NantiKita — turunan dari login.css dan admin.css.
+   Semua selector di-scope ke .landing-root supaya tidak bentrok dengan Tailwind / halaman lain. */
+
+.landing-root {
+  --g-900: #141e17;
+  --g-800: #1e2d24;
+  --g-700: #2d3f34;
+  --g-600: #3e5747;
+  --g-100: #e7eee9;
+  --g-50: #f3f6f4;
+  --ink: #222;
+  --muted: #717171;
+  --line: #e6e9e6;
+  --bg: #f4f6f3;
+  --danger: #c13515;
+  --danger-bg: #fff8f6;
+  --gold: #9a6b12;
+  --gold-bg: #fbf3e2;
+  --gold-light: #e2c295;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+html:has(.landing-root) {
+  scroll-behavior: smooth;
+}
+
+.landing-root *,
+.landing-root *::before,
+.landing-root *::after {
+  box-sizing: border-box;
+}
+
+.landing-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.landing-root h1,
+.landing-root h2,
+.landing-root h3,
+.landing-root p,
+.landing-root ul,
+.landing-root ol,
+.landing-root blockquote {
+  margin: 0;
+  padding: 0;
+}
+
+.landing-root ul,
+.landing-root ol {
+  list-style: none;
+}
+
+.landing-root .lp-wrap {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ---------- Latar gelap: sama dengan latar login ---------- */
+.landing-root .lp-dark {
+  color: #fff;
+  background-color: var(--g-900);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(135deg, #141e17 0%, #243329 100%);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+/* ---------- Tombol (padanan .btn-primary-custom / .adm-btn) ---------- */
+.landing-root .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s, transform 0.3s var(--ease);
+}
+
+.landing-root .lp-btn:active {
+  transform: scale(0.95);
+}
+
+.landing-root .lp-btn-sm {
+  padding: 9px 15px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.landing-root .lp-btn-block {
+  width: 100%;
+}
+
+.landing-root .lp-btn-light {
+  background: #fff;
+  color: var(--g-800);
+}
+
+.landing-root .lp-btn-light:hover {
+  background: var(--g-100);
+}
+
+.landing-root .lp-btn-ghost-dark {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.landing-root .lp-btn-ghost-dark:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.landing-root .lp-btn-primary {
+  background: var(--g-700);
+  color: #fff;
+}
+
+.landing-root .lp-btn-primary:hover {
+  background: var(--g-800);
+}
+
+.landing-root .lp-btn-outline {
+  background: #fff;
+  color: var(--g-800);
+  border-color: #b0b0b0;
+}
+
+.landing-root .lp-btn-outline:hover {
+  background: var(--g-50);
+  border-color: var(--g-700);
+}
+
+.landing-root .lp-btn.lp-static {
+  cursor: default;
+}
+
+.landing-root .lp-btn.lp-static:active {
+  transform: none;
+}
+
+.landing-root a:focus-visible,
+.landing-root button:focus-visible {
+  outline: 2px solid var(--g-700);
+  outline-offset: 2px;
+}
+
+.landing-root .lp-dark a:focus-visible,
+.landing-root .lp-nav a:focus-visible {
+  outline-color: #fff;
+}
+
+/* Tombol di dalam kartu putih pada latar gelap */
+.landing-root .lp-price a:focus-visible {
+  outline-color: var(--g-700);
+}
+
+/* ---------- Navigasi ---------- */
+.landing-root .lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(20, 30, 23, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.landing-root .lp-nav-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.landing-root .lp-logo {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.4px;
+}
+
+.landing-root .lp-nav-links {
+  display: flex;
+  gap: 4px;
+  margin-left: 16px;
+}
+
+.landing-root .lp-nav-links a {
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.62);
+  transition: background 0.25s, color 0.25s;
+}
+
+.landing-root .lp-nav-links a:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.landing-root .lp-nav-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Hero ---------- */
+.landing-root .lp-hero {
+  padding: 72px 0 88px;
+  overflow: hidden;
+}
+
+.landing-root .lp-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.landing-root .lp-hero-copy h1 {
+  font-size: clamp(34px, 4.6vw, 54px);
+  font-weight: 800;
+  letter-spacing: -1.6px;
+  line-height: 1.1;
+  max-width: 560px;
+}
+
+.landing-root .lp-hero-copy > p:first-of-type {
+  margin-top: 20px;
+  max-width: 460px;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.landing-root .lp-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.landing-root .lp-hero-note {
+  margin-top: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Contoh undangan + RSVP: satu-satunya elemen "berani" di halaman */
+.landing-root .lp-stage {
+  position: relative;
+  min-height: 560px;
+}
+
+.landing-root .lp-phone {
+  position: absolute;
+  top: 0;
+  left: -16px;
+  width: 270px;
+  padding: 10px;
+  border-radius: 42px;
+  background: #0b110d;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  animation: lpRise 1.2s var(--ease) 0.1s both;
+}
+
+.landing-root .lp-phone-notch {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 2;
+  width: 72px;
+  height: 18px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #0b110d;
+}
+
+.landing-root .lp-phone-screen {
+  aspect-ratio: 9 / 18.5;
+  border-radius: 32px;
+  overflow: hidden;
+  background-color: var(--g-700);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(180deg, #2d3f34 0%, #1a271f 100%);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.landing-root .lp-inv {
+  height: 100%;
+  padding: 58px 22px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+}
+
+.landing-root .lp-inv-top {
+  font-size: 13px;
+  color: var(--gold-light);
+}
+
+.landing-root .lp-inv-names {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-style: italic;
+  font-size: 44px;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+
+.landing-root .lp-inv-amp {
+  font-size: 26px;
+  color: var(--gold-light);
+}
+
+.landing-root .lp-inv-date {
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.landing-root .lp-inv-rule {
+  width: 40px;
+  height: 1px;
+  margin: 22px 0;
+  background: rgba(226, 194, 149, 0.6);
+}
+
+.landing-root .lp-inv-to {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.landing-root .lp-inv-to b {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.landing-root .lp-inv-btn {
+  margin-top: auto;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: var(--gold-light);
+  color: #3a2a0b;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+/* Kartu RSVP (bahasa visual sama dengan .adm-card) */
+.landing-root .lp-rsvp {
+  position: absolute;
+  right: -32px;
+  bottom: 4px;
+  width: 310px;
+  padding: 20px;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.4);
+  animation: lpRise 1.1s var(--ease) 0.55s both;
+}
+
+.landing-root .lp-rsvp-head b {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.landing-root .lp-rsvp-head small {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.landing-root .lp-rsvp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  animation: lpRise 0.8s var(--ease) both;
+}
+
+.landing-root .lp-rsvp-row:nth-child(1) {
+  animation-delay: 1.2s;
+}
+
+.landing-root .lp-rsvp-row:nth-child(2) {
+  animation-delay: 1.75s;
+}
+
+.landing-root .lp-rsvp-row:nth-child(3) {
+  animation-delay: 2.3s;
+}
+
+.landing-root .lp-avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--g-100);
+  color: var(--g-700);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.landing-root .lp-rsvp-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.landing-root .lp-rsvp-main b {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.landing-root .lp-rsvp-main small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+@keyframes lpRise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Badge (sama dengan .adm-badge) ---------- */
+.landing-root .lp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.landing-root .lp-badge-ok {
+  background: var(--g-100);
+  color: var(--g-700);
+}
+
+.landing-root .lp-badge-no {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.landing-root .lp-badge-gold {
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+
+.landing-root .lp-badge-plain {
+  background: #eff1ef;
+  color: #4a524d;
+}
+
+/* ---------- Section umum ---------- */
+.landing-root .lp-section {
+  padding: 88px 0;
+}
+
+.landing-root .lp-section-steps {
+  padding-top: 0;
+}
+
+.landing-root .lp-section-head {
+  margin-bottom: 36px;
+}
+
+.landing-root .lp-section-head h2 {
+  max-width: 560px;
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.9px;
+  line-height: 1.18;
+}
+
+.landing-root .lp-section-head p {
+  margin-top: 10px;
+  max-width: 480px;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.landing-root .lp-section-head.lp-on-dark p {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------- Bento fitur ---------- */
+.landing-root .lp-bento {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.landing-root .lp-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(20, 30, 23, 0.04);
+}
+
+.landing-root .lp-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.landing-root .lp-card-sub {
+  margin-top: 6px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+
+.landing-root .lp-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.landing-root .lp-b-list {
+  grid-column: span 2;
+}
+
+.landing-root .lp-b-theme {
+  grid-column: span 2;
+}
+
+.landing-root .lp-table-wrap {
+  margin-top: 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.landing-root .lp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background: #fff;
+}
+
+.landing-root .lp-table th {
+  padding: 12px 16px;
+  background: var(--g-50);
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.landing-root .lp-table td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.landing-root .lp-table tbody tr:first-child td {
+  border-top: 0;
+}
+
+.landing-root .lp-name {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.landing-root .lp-list-foot {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.landing-root .lp-list-foot b {
+  color: var(--g-800);
+  font-weight: 800;
+}
+
+/* Kartu hijau (padanan .adm-stat.hi) */
+.landing-root .lp-b-link {
+  display: flex;
+  flex-direction: column;
+  background: var(--g-700);
+  border-color: var(--g-700);
+  color: #fff;
+}
+
+.landing-root .lp-b-link .lp-card-sub {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.landing-root .lp-browser {
+  margin-top: auto;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.landing-root .lp-browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.landing-root .lp-browser-bar i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.landing-root .lp-browser-bar span {
+  flex: 1;
+  min-width: 0;
+  margin-left: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.landing-root .lp-browser-body {
+  padding: 22px 12px;
+  text-align: center;
+}
+
+.landing-root .lp-browser-body span {
+  display: block;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.landing-root .lp-browser-body small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--gold-light);
+}
+
+.landing-root .lp-b-link .lp-card-sub {
+  margin-bottom: 24px;
+}
+
+.landing-root .lp-quote {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--g-700);
+  border-radius: 4px;
+  background: var(--g-50);
+  font-size: 14px;
+  font-style: italic;
+  color: #555;
+}
+
+.landing-root .lp-quote cite {
+  display: block;
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--g-700);
+}
+
+.landing-root .lp-chips {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.landing-root .lp-chips .lp-badge {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.landing-root .lp-textlink {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--g-700);
+}
+
+.landing-root .lp-textlink:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Cara order ---------- */
+.landing-root .lp-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.landing-root .lp-step-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.landing-root .lp-step-no {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--g-700);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.landing-root .lp-step-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.landing-root .lp-steps h3 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.landing-root .lp-steps p {
+  margin-top: 6px;
+  max-width: 320px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+
+/* ---------- Harga ---------- */
+.landing-root .lp-pricing {
+  padding: 88px 0 32px;
+}
+
+.landing-root .lp-price-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.landing-root .lp-price {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  border-radius: 24px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.landing-root .lp-price-main {
+  box-shadow:
+    0 0 0 3px var(--gold-light),
+    0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.landing-root .lp-price-flag {
+  position: absolute;
+  top: -14px;
+  left: 32px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--gold-light);
+  color: #3a2a0b;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.landing-root .lp-price-head h3 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.landing-root .lp-price-amount {
+  margin-top: 8px;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  color: var(--g-800);
+}
+
+.landing-root .lp-price-sub {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.landing-root .lp-features {
+  margin: 24px 0 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.landing-root .lp-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+}
+
+.landing-root .lp-features li.lp-no {
+  color: var(--muted);
+}
+
+.landing-root .lp-ic-ok {
+  flex: none;
+  margin-top: 3px;
+  color: var(--g-700);
+}
+
+.landing-root .lp-ic-no {
+  flex: none;
+  margin-top: 3px;
+  color: #c4c9c5;
+}
+
+/* ---------- Footer ---------- */
+.landing-root .lp-footer {
+  margin-top: 72px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.landing-root .lp-footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.landing-root .lp-footer-top p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.landing-root .lp-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.landing-root .lp-footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.landing-root .lp-footer-links a:hover {
+  color: #fff;
+}
+
+.landing-root .lp-copy {
+  margin-top: 40px;
+  padding-bottom: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.landing-root [id] {
+  scroll-margin-top: 72px;
+}
+
+/* ---------- Responsif ---------- */
+@media (max-width: 1100px) and (min-width: 961px) {
+  .landing-root .lp-phone {
+    width: 240px;
+  }
+
+  .landing-root .lp-rsvp {
+    width: 290px;
+    right: -24px;
+  }
+}
+
+@media (max-width: 960px) {
+  .landing-root .lp-hero {
+    padding: 48px 0 64px;
+  }
+
+  .landing-root .lp-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .landing-root .lp-stage {
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .landing-root .lp-bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-root .lp-b-list,
+  .landing-root .lp-b-theme {
+    grid-column: auto;
+  }
+
+  .landing-root .lp-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .landing-root .lp-step-line {
+    display: none;
+  }
+
+  .landing-root .lp-price-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-root .lp-wrap,
+  .landing-root .lp-nav-inner {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .landing-root .lp-nav-links {
+    display: none;
+  }
+
+  .landing-root .lp-section,
+  .landing-root .lp-pricing {
+    padding-top: 64px;
+  }
+
+  .landing-root .lp-section-steps {
+    padding-top: 0;
+  }
+
+  .landing-root .lp-stage {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landing-root .lp-phone,
+  .landing-root .lp-rsvp {
+    position: relative;
+    inset: auto;
+  }
+
+  .landing-root .lp-rsvp {
+    width: calc(100% - 8px);
+    margin-top: -36px;
+    align-self: flex-end;
+  }
+
+  .landing-root .lp-card {
+    padding: 22px;
+  }
+
+  .landing-root .lp-price {
+    padding: 26px;
+  }
+
+  .landing-root .lp-list-foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing-root .lp-nav-actions .lp-btn-ghost-dark {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.landing-root) {
+    scroll-behavior: auto;
+  }
+
+  .landing-root *,
+  .landing-root *::before,
+  .landing-root *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

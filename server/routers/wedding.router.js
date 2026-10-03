@@ -5,4 +5,6 @@ router.get("/themes", WeddingController.listThemes);
 router.get("/wedding/:slug", WeddingController.getWeddingBySlug);
 router.get("/wedding/:slug/rsvps", WeddingController.getRsvpsBySlug);
 router.post("/wedding/:slug/rsvp", WeddingController.submitRsvp);
+router.post("/wedding/:slug/ucapan", WeddingController.submitUcapan);
+
 export default router;

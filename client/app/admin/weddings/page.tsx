@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BsClipboard, BsEye, BsPencil, BsPlusLg, BsTrash } from "react-icons/bs";
 import { apiFetch } from "@/lib/api";
 import { confirmDelete, errorPopup, toastSuccess } from "@/lib/alert";
 import { formatTanggal } from "@/lib/format";
@@ -58,7 +59,7 @@ export default function WeddingsIndexPage() {
           <p>Semua pengantin yang memakai jasa NantiKita.</p>
         </div>
         <Link href="/admin/weddings/create" className="adm-btn adm-btn-primary">
-          Tambah undangan
+          <BsPlusLg aria-hidden /> Tambah undangan
         </Link>
       </div>
 
@@ -96,20 +97,20 @@ export default function WeddingsIndexPage() {
                     <div className="adm-linkbox">
                       <input type="text" readOnly aria-label="Link undangan" value={`${origin}/wedding/${w.slug}`} />
                       <button type="button" onClick={() => copyLink(w)} className="adm-btn adm-btn-ghost adm-btn-sm">
-                        Salin
+                        <BsClipboard aria-hidden /> Salin link
                       </button>
                     </div>
                   </td>
                   <td>
                     <div className="adm-actions">
                       <Link href={`/admin/weddings/${w.id}/rsvps`} className="adm-btn adm-btn-ghost adm-btn-sm">
-                        RSVP
+                        <BsEye aria-hidden /> Lihat RSVP
                       </Link>
                       <Link href={`/admin/weddings/${w.id}/edit`} className="adm-btn adm-btn-ghost adm-btn-sm">
-                        Edit
+                        <BsPencil aria-hidden /> Edit
                       </Link>
                       <button type="button" onClick={() => onDelete(w.id)} className="adm-btn adm-btn-danger adm-btn-sm">
-                        Hapus
+                        <BsTrash aria-hidden /> Hapus
                       </button>
                     </div>
                   </td>

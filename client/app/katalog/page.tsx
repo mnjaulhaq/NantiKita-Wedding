@@ -3,463 +3,253 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Montserrat, Playfair_Display } from "next/font/google";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
+import { BsWhatsapp } from "react-icons/bs";
+import { isThemeActive } from "@/lib/themes";
+import { DEMO_SLUG, TEMPLATES, waLink } from "@/lib/marketing";
 import {
-  BsCheckCircleFill,
-  BsInstagram,
-  BsList,
-  BsWhatsapp,
-  BsXCircleFill,
-} from "react-icons/bs";
+  PricingSection,
+  SiteFooter,
+  StepsSection,
+} from "@/components/MarketingSections";
+import "../landing.css";
 import "./katalog.css";
 
-const montserrat = Montserrat({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-montserrat",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
+// Dipakai untuk nama tema pada gambar pengganti kalau screenshot belum ada.
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  style: ["normal", "italic"],
+  style: ["italic"],
   variable: "--font-playfair",
   display: "swap",
 });
 
-const WA_NUMBER = "628976337088";
-const DEMO_SLUG = "budi-dan-riri";
-
-/* ------------------------------ Data ------------------------------ */
-
-type TemplateItem = {
-  key: string; // dipakai di ?theme=
-  title: string;
-  image: string;
-  alt: string;
-  edition?: string;
-};
-
-const TEMPLATES: TemplateItem[] = [
-  {
-    key: "rustic",
-    title: "RUSTIC",
-    image: "/themes/rustic/assets/img/rustic-thumbnail.jpeg",
-    alt: "rustic",
-  },
-  {
-    key: "floral_luxury",
-    title: "FLORAL LUXURY",
-    edition: "Special Edition :",
-    // Placeholder sementara sampai screenshot aslinya ada
-    image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500",
-    alt: "Floral Luxury",
-  },
-  {
-    key: "sage",
-    title: "SAGE GREEN & BOTANICAL",
-    image: "/themes/sage/assets/img/cover-sage-botanical.jpg",
-    alt: "sage green & botanical",
-  },
-  {
-    key: "japandi",
-    title: "JAPANDI",
-    image: "/themes/japandi/assets/img/cover-japandi.jpg",
-    alt: "japandi",
-  },
-  {
-    key: "cinematic",
-    title: "CINEMATIC",
-    image: "/themes/cinematic/assets/img/cover-cinematic.jpg",
-    alt: "cinematic",
-  },
-  {
-    key: "midnight",
-    title: "MIDNIGHT & ROMANCE",
-    image: "/themes/midnight/assets/img/cover-midnight.jpg",
-    alt: "midnight",
-  },
-];
-
-const BASIC_FEATURES = [
-  { text: "Custom Nama Tamu", ok: true },
-  { text: "Teks & Protokol Kesehatan", ok: true },
-  { text: "Navigasi Peta Lokasi (Google Maps)", ok: true },
-  { text: "Galeri Foto (Maks 5 Foto)", ok: true },
-  { text: "Fitur Angpao Digital / Rekening", ok: true },
-  { text: "Tanpa Background Musik Custom", ok: false },
-  { text: "Tanpa Fitur RSVP & Ucapan", ok: false },
-];
-
-const PREMIUM_FEATURES = [
-  "Semua Fitur Paket Basic",
-  "Masa Aktif Lebih Lama",
-  "Galeri Foto & Video Tanpa Batas",
-  "Background Musik Bebas Request",
-  "Fitur RSVP & Konfirmasi Kehadiran",
-  "Kolom Ucapan & Doa Restu (Live)",
-  "Fitur Spesial Story/Kisah Cinta",
-];
-
-const STEPS = [
-  {
-    no: "01",
-    title: "Pilih Desain",
-    desc: "Cari dan tentukan template undangan favorit Anda di katalog atas, lalu klik tombol paket yang diinginkan.",
-    highlight: false,
-  },
-  {
-    no: "02",
-    title: "Isi Data & Musik",
-    desc: "Konsultasikan via WhatsApp untuk pengisian data mempelai, galeri foto, lokasi acara, hingga request musik latar.",
-    highlight: true,
-  },
-  {
-    no: "03",
-    title: "Undangan Siap Kirim",
-    desc: "Proses pengerjaan cepat. Undangan digital premium Anda siap disebarkan ke seluruh daftar tamu spesial.",
-    highlight: false,
-  },
-];
-
 const NAV_ITEMS = [
-  { label: "Katalog Template", href: "#top" },
-  { label: "Harga & Paket", href: "#harga" },
-  { label: "Cara Order", href: "#cara-order" },
+  { id: "katalog", label: "Katalog" },
+  { id: "cara-order", label: "Cara order" },
+  { id: "harga", label: "Harga" },
 ];
+const SECTION_IDS = NAV_ITEMS.map((n) => n.id);
+
+type Filter = "all" | "ready" | "soon";
 
 const demoHref = (theme: string, paket: "basic" | "premium") =>
   `/wedding/${DEMO_SLUG}?theme=${theme}&paket=${paket}&from_katalog=true`;
 
-const waOrder = (paket: string) =>
-  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    `Halo Admin Nanti Kita, saya mau order Paket ${paket}`,
-  )}`;
-
-/* ------------------- Efek hover otomatis saat di-scroll ------------------- */
-/* Pengganti IntersectionObserver + .scroll-trigger di blade */
-
-function ScrollTrigger({
-  cardClassName,
-  children,
-}: {
-  cardClassName: string;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
+/* Menandai menu yang sesuai dengan bagian yang sedang dibaca */
+function useActiveSection(ids: string[]) {
+  const [active, setActive] = useState(ids[0]);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const els = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
     const observer = new IntersectionObserver(
-      ([entry]) => setActive(entry.isIntersecting),
-      { root: null, threshold: 0.5, rootMargin: "-10% 0px -10% 0px" },
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: "-30% 0px -60% 0px" },
     );
-    observer.observe(el);
+    els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
+  }, [ids]);
+
+  return active;
+}
+
+/* Gambar tema. Kalau file gambarnya tidak ada, yang tampil nama tema di atas latar hijau. */
+function ThemeThumb({ src, title }: { src: string; title: string }) {
+  const ref = useRef<HTMLImageElement>(null);
+  const [failed, setFailed] = useState(false);
+
+  // onError bisa terlewat kalau gambar gagal sebelum hydration selesai.
+  useEffect(() => {
+    const img = ref.current;
+    if (img && img.complete && img.naturalWidth === 0) setFailed(true);
   }, []);
 
   return (
-    <div className="k-col" ref={ref}>
-      <div className={`${cardClassName}${active ? " auto-hover" : ""}`}>
-        {children}
-      </div>
+    <div className="kt-thumb">
+      <span className="kt-thumb-name" aria-hidden="true">
+        {title}
+      </span>
+      {!failed && (
+        <img
+          ref={ref}
+          src={src}
+          alt={`Contoh undangan tema ${title}`}
+          onError={() => setFailed(true)}
+        />
+      )}
     </div>
   );
 }
 
-/* ------------------------------ Navbar ------------------------------ */
-
-function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [slider, setSlider] = useState({ left: 6, width: 0 });
-  const [animate, setAnimate] = useState(false);
-
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const centerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-
-  const moveSlider = useCallback((idx: number) => {
-    const item = itemRefs.current[idx];
-    const container = centerRef.current;
-    if (!item || !container) return;
-    const t = item.getBoundingClientRect();
-    const c = container.getBoundingClientRect();
-    setSlider({ left: t.left - c.left, width: t.width });
-  }, []);
-
-  // Posisi awal (tanpa animasi), lalu aktifkan transisi
-  useEffect(() => {
-    moveSlider(0);
-    const id = setTimeout(() => setAnimate(true), 50);
-    return () => clearTimeout(id);
-  }, [moveSlider]);
-
-  // Pindah slider saat item aktif berubah & saat resize
-  useEffect(() => {
-    moveSlider(activeIdx);
-    const onResize = () => moveSlider(activeIdx);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeIdx, moveSlider]);
-
-  // Tutup dropdown saat klik di luar
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        buttonRef.current?.contains(target) ||
-        menuRef.current?.contains(target)
-      )
-        return;
-      setMenuOpen(false);
-    };
-    window.addEventListener("click", onClick);
-    return () => window.removeEventListener("click", onClick);
-  }, [menuOpen]);
-
-  return (
-    <nav className="navbar">
-      <div className="container-navbar-custom">
-        <a className="navbar-brand-logo" href="#top">
-          <span className="nav-logo-text">NantiKita</span>
-        </a>
-
-        <div className="navbar-center-menu" ref={centerRef}>
-          <div
-            className={`nav-bg-slider${animate ? "" : " no-animation"}`}
-            style={{ left: slider.left, width: slider.width }}
-          />
-          {NAV_ITEMS.map((item, i) => (
-            <a
-              key={item.href}
-              ref={(el) => {
-                itemRefs.current[i] = el;
-              }}
-              className={`center-menu-item${activeIdx === i ? " active" : ""}`}
-              href={item.href}
-              onClick={() => setActiveIdx(i)}
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-
-        <button
-          ref={buttonRef}
-          className="custom-hamburger-capsule"
-          type="button"
-          aria-label="Buka menu"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <BsList className="menu-icon" />
-        </button>
-
-        <div
-          className={`nantikita-menu${menuOpen ? " show" : ""}`}
-          ref={menuRef}
-        >
-          <div className="mobile-menu-links">
-            <a className="dropdown-item-link" href="#katalog">
-              Katalog Template
-            </a>
-            <a className="dropdown-item-link" href="#harga">
-              Harga &amp; Paket
-            </a>
-            <a className="dropdown-item-link" href="#cara-order">
-              Cara Order
-            </a>
-            <div className="dropdown-divider" />
-          </div>
-
-          <div className="dropdown-social-wrapper">
-            <span>Hubungi Kami:</span>
-            <div className="social-icons-box">
-              <a
-                className="item-bi"
-                href="https://www.instagram.com/nantikitadigitalwedding"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <BsInstagram /> Instagram
-              </a>
-              <a
-                className="item-bi"
-                href={`https://wa.me/${WA_NUMBER}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <BsWhatsapp /> WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-/* ------------------------------ Page ------------------------------ */
-
 export default function KatalogPage() {
+  const active = useActiveSection(SECTION_IDS);
+  const [filter, setFilter] = useState<Filter>("all");
+
+  // Tema yang sudah siap dipesan ditaruh di depan.
+  const items = useMemo(
+    () =>
+      TEMPLATES.map((t) => ({ ...t, ready: isThemeActive(t.key) })).sort(
+        (a, b) => Number(b.ready) - Number(a.ready),
+      ),
+    [],
+  );
+
+  const counts = {
+    all: items.length,
+    ready: items.filter((t) => t.ready).length,
+    soon: items.filter((t) => !t.ready).length,
+  };
+
+  const visible = items.filter((t) =>
+    filter === "all" ? true : filter === "ready" ? t.ready : !t.ready,
+  );
+
+  const FILTERS: { id: Filter; label: string }[] = [
+    { id: "all", label: "Semua" },
+    { id: "ready", label: "Siap dipesan" },
+    { id: "soon", label: "Segera hadir" },
+  ];
+
   return (
     <div
       id="top"
-      className={`katalog-root ${montserrat.variable} ${playfair.variable}`}
+      className={`landing-root katalog-root ${jakarta.variable} ${playfair.variable}`}
     >
-      <Navbar />
+      {/* Navigasi */}
+      <nav className="lp-nav" aria-label="Navigasi utama">
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-logo">
+            NantiKita.
+          </Link>
+          <div className="lp-nav-links">
+            {NAV_ITEMS.map((n) => (
+              <a
+                key={n.id}
+                href={`#${n.id}`}
+                className={active === n.id ? "is-active" : undefined}
+                aria-current={active === n.id ? "location" : undefined}
+              >
+                {n.label}
+              </a>
+            ))}
+          </div>
+          <div className="lp-nav-actions">
+            <a
+              href={waLink("Halo Admin Nanti Kita, saya mau tanya soal undangan digital")}
+              className="lp-btn lp-btn-light lp-btn-sm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <BsWhatsapp aria-hidden /> Hubungi admin
+            </a>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero */}
-      <div className="hero-catalog">
-        <h2>Katalog Template</h2>
-        <p>Temukan desain undangan digital impian Anda bersama Nanti Kita</p>
-      </div>
+      <header className="lp-dark kt-hero">
+        <div className="lp-wrap">
+          <h1>Katalog template undangan</h1>
+          <p>
+            Buka demo setiap tema dalam versi Basic dan Premium, lalu pesan
+            lewat WhatsApp.
+          </p>
+        </div>
+      </header>
 
       {/* Katalog */}
-      <div id="katalog" className="k-container">
-        <div className="k-grid-katalog">
-          {TEMPLATES.map((t) => (
-            <div className="k-col" key={t.key}>
-              <div className="template-card">
-                <div className="card-img-wrapper">
-                  <img src={t.image} alt={t.alt} />
-                </div>
-                <div className="p-2-custom">
-                  <div>
-                    {t.edition && (
-                      <div className="edition-label">{t.edition}</div>
+      <section id="katalog" className="kt-section">
+        <div className="lp-wrap">
+          <div className="kt-toolbar">
+            <div className="kt-filters" role="group" aria-label="Filter tema">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`kt-filter${filter === f.id ? " on" : ""}`}
+                  aria-pressed={filter === f.id}
+                  onClick={() => setFilter(f.id)}
+                >
+                  {f.label}
+                  <span>{counts[f.id]}</span>
+                </button>
+              ))}
+            </div>
+            <p className="kt-note">
+              Demo terbuka di tab baru. Tema berlabel Segera masih disiapkan,
+              jadi demonya memakai tampilan sementara.
+            </p>
+          </div>
+
+          <ul className="kt-grid">
+            {visible.map((t) => (
+              <li className="kt-card" key={t.key}>
+                <ThemeThumb src={t.image} title={t.title} />
+                <div className="kt-body">
+                  <div className="kt-badges">
+                    <span
+                      className={`lp-badge ${t.ready ? "lp-badge-ok" : "lp-badge-plain"}`}
+                    >
+                      {t.ready ? "Siap dipesan" : "Segera"}
+                    </span>
+                    {t.special && (
+                      <span className="lp-badge lp-badge-gold">Special edition</span>
                     )}
-                    <div className="template-title">{t.title}</div>
                   </div>
-                  <div className="button-group-wrapper">
-                    <div className="template-btns">
-                      <Link
-                        href={demoHref(t.key, "basic")}
-                        className="btn btn-primary"
-                        target="_blank"
-                      >
-                        Lihat Basic
-                      </Link>
-                    </div>
-                    <div className="template-btns">
-                      <Link
-                        href={demoHref(t.key, "premium")}
-                        className="btn btn-secondary"
-                        target="_blank"
-                      >
-                        Lihat Premium
-                      </Link>
-                    </div>
+                  <h3>{t.title}</h3>
+                  <div className="kt-actions">
+                    <Link
+                      href={demoHref(t.key, "basic")}
+                      className="lp-btn lp-btn-outline lp-btn-sm"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Demo Basic
+                    </Link>
+                    <Link
+                      href={demoHref(t.key, "premium")}
+                      className="lp-btn lp-btn-primary lp-btn-sm"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Demo Premium
+                    </Link>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      </section>
 
-      {/* Harga */}
-      <div id="harga" className="k-container">
-        <div className="k-row-price">
-          <ScrollTrigger cardClassName="price-card">
-            <div className="price-header">
-              <div className="package-name">PAKET BASIC</div>
-              <div className="price-amount">Rp 99.000</div>
-              <div className="price-sub">Aktif 3 Bulan</div>
-            </div>
-            <div className="price-body">
-              <ul className="price-features">
-                {BASIC_FEATURES.map((f) => (
-                  <li key={f.text}>
-                    {f.ok ? (
-                      <BsCheckCircleFill className="feat-ok" />
-                    ) : (
-                      <BsXCircleFill className="feat-no" />
-                    )}
-                    {f.text}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="price-footer">
-              <a
-                href={waOrder("Basic")}
-                className="btn-price-outline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Pilih Paket
-              </a>
-            </div>
-          </ScrollTrigger>
+      <StepsSection />
 
-          <ScrollTrigger cardClassName="price-card popular">
-            <div className="popular-badge">PASTILAH PILIH INI</div>
-            <div className="price-header">
-              <div className="package-name">PAKET PREMIUM</div>
-              <div className="price-amount">Rp 149.000</div>
-              <div className="price-sub">Aktif Selamanya / 1 Tahun</div>
-            </div>
-            <div className="price-body">
-              <ul className="price-features">
-                {PREMIUM_FEATURES.map((text) => (
-                  <li key={text}>
-                    <BsCheckCircleFill className="feat-ok" />
-                    {text}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="price-footer">
-              <a
-                href={waOrder("Premium")}
-                className="btn-price-solid"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Order Sekarang
-              </a>
-            </div>
-          </ScrollTrigger>
-        </div>
-      </div>
+      <PricingSection>
+        <SiteFooter />
+      </PricingSection>
 
-      {/* Cara order */}
-      <div id="cara-order" className="k-container">
-        <div className="k-row-steps">
-          {STEPS.map((s) => (
-            <ScrollTrigger
-              key={s.no}
-              cardClassName={`step-card${s.highlight ? " highlight" : ""}`}
-            >
-              <div className="step-number">{s.no}</div>
-              <div className="step-content">
-                <div className="step-title">{s.title}</div>
-                <p className="step-desc">{s.desc}</p>
-              </div>
-            </ScrollTrigger>
-          ))}
-        </div>
-      </div>
-
-      {/* WhatsApp floating */}
+      {/* WhatsApp mengambang */}
       <a
-        href={`https://wa.me/${WA_NUMBER}`}
-        className="whatsapp-float"
+        href={waLink()}
+        className="kt-wa"
         target="_blank"
         rel="noopener noreferrer"
-        title="Hubungi Admin via WhatsApp"
+        aria-label="Hubungi admin lewat WhatsApp"
       >
-        <img
-          src="https://img.icons8.com/color/48/000000/whatsapp--v1.png"
-          alt="WhatsApp"
-        />
+        <BsWhatsapp aria-hidden />
       </a>
     </div>
   );

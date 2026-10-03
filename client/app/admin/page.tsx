@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BsEye, BsPlusLg } from "react-icons/bs";
 import { apiFetch } from "@/lib/api";
 import { formatRupiah, formatTanggalPendek } from "@/lib/format";
 
@@ -72,10 +73,10 @@ export default function AdminDashboard() {
         </div>
         <div className="adm-hero-actions">
           <Link href="/admin/weddings/create" className="adm-btn adm-btn-light">
-            Tambah undangan
+            <BsPlusLg aria-hidden /> Tambah undangan
           </Link>
-          <Link href="/admin/rsvps" className="adm-btn" style={{ color: "#fff", borderColor: "rgba(255,255,255,.3)" }}>
-            Lihat RSVP
+          <Link href="/admin/rsvps" className="adm-btn adm-btn-outline-light">
+            <BsEye aria-hidden /> Lihat semua RSVP
           </Link>
         </div>
       </section>
