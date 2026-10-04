@@ -1,5 +1,5 @@
 import { listThemeSettings } from "../models/theme.model.js";
-// Port dari config/themes.php (Laravel).
+
 // Satu-satunya sumber kebenaran daftar tema. Tambah tema baru = tambah 1 entri di sini.
 export const THEMES = {
     adatSunda: { label: "Adat Sunda", status: "active" },
@@ -12,17 +12,9 @@ export const THEMES = {
     midnight: { label: "Midnight Romantic", status: "dummy" },
     japandi: { label: "Japandi", status: "dummy" },
 };
-export function themeOptions() {
-    return Object.entries(THEMES).map(([key, v]) => ({
-        key,
-        label: v.status === "dummy" ? `${v.label} (Belum Siap)` : v.label,
-        status: v.status,
-    }));
-}
-export function isThemeActive(key) {
-    return THEMES[key]?.status === "active";
-}
+
 export const THEME_STATUSES = ["active", "dummy"];
+
 // Gabungan status bawaan (THEMES) dan perubahan admin dari tabel theme_settings.
 export async function resolveThemes() {
     const overrides = Object.fromEntries((await listThemeSettings()).map((r) => [r.key, r.status]));
