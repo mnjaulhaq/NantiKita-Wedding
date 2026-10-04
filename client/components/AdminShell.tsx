@@ -53,6 +53,11 @@ const NAV = [
     label: "Data RSVP Global",
     d: "M4 6h16v12H4zM4 7l8 6 8-6",
   },
+  {
+    href: "/admin/templates",
+    label: "Template",
+    d: "M12 3a9 9 0 100 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A3.6 3.6 0 0021 9.8C21 6 17 3 12 3z",
+  },
 ];
 
 export default function AdminShell({
@@ -109,11 +114,6 @@ export default function AdminShell({
               </Link>
             );
           })}
-          <span className="adm-link soon" aria-disabled="true">
-            <Icon d="M12 3a9 9 0 100 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A3.6 3.6 0 0021 9.8C21 6 17 3 12 3z" />
-            Template
-            <span className="adm-soon-tag">Segera</span>
-          </span>
         </nav>
 
         <div className="adm-side-foot">

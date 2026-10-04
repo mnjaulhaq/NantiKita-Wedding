@@ -72,6 +72,15 @@ model Rsvp {
   @@map("rsvps")
 }
 
+// Status tema yang diubah admin. Tema tanpa baris di sini memakai status bawaan di config/themes.js.
+model ThemeSetting {
+  key       String    @id @db.VarChar(100)
+  status    String    @db.VarChar(20)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@map("theme_settings")
+}
+
 enum rsvps_status {
   hadir
   tidak_hadir

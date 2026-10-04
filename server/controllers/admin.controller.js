@@ -2,6 +2,8 @@ import { z } from "zod";
 import { generateRsvpPdf } from "../utils/rsvp-pdf.js";
 import * as WeddingModel from "../models/wedding.model.js";
 import * as RsvpModel from "../models/rsvp.model.js";
+import * as ThemeModel from "../models/theme.model.js";
+import { resolveThemes, THEME_STATUSES } from "../config/themes.js";
 import { getScope } from "../middlewares/auth.middleware.js";
 const HARGA = { basic: 500000, premium: 1000000 };
 function slugify(input) {
@@ -138,4 +140,25 @@ export async function downloadPdf(req, res) {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.send(buffer);
+}
+
+export async function listTemplates(_req, res) {
+  const [themes, usage] = await Promise.all([
+    resolveThemes(),
+    ThemeModel.countWeddingsByTheme(),
+  ]);
+  res.json({ data: themes.map((t) => ({ ...t, usage: usage[t.key] ?? 0 })) });
+}
+const templateStatusSchema = z.object({ status: z.enum(THEME_STATUSES) });
+export async function updateTemplateStatus(req, res) {
+  const themes = await resolveThemes();
+  const theme = themes.find((t) => t.key === req.params.key);
+  if (!theme)
+    return res.status(404).json({ message: "Tema tidak ditemukan." });
+  const parsed = templateStatusSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+  await ThemeModel.saveThemeStatus(theme.key, parsed.data.status);
+  res.json({ success: true, data: { ...theme, status: parsed.data.status } });
 }

@@ -12,4 +12,6 @@ router.put("/weddings/:id", AdminController.updateWedding);
 router.delete("/weddings/:id", AdminController.deleteWedding);
 router.get("/weddings/:id/rsvps", AdminController.weddingRsvps);
 router.get("/weddings/:id/pdf", AdminController.downloadPdf);
+router.get("/templates", AdminController.listTemplates);
+router.patch("/templates/:key", AdminController.updateTemplateStatus);
 export default router;

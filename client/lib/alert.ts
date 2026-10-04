@@ -56,3 +56,18 @@ export async function confirmDelete() {
   });
   return result.isConfirmed;
 }
+
+export async function confirmAction(title: string, text: string, confirmText: string) {
+  const result = await Swal.fire({
+    title,
+    text,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: BRAND_GREEN,
+    confirmButtonText: confirmText,
+    cancelButtonText: "Batal",
+    background: "#ffffff",
+    customClass: { popup: "rounded-xl shadow-lg border border-gray-100" },
+  });
+  return result.isConfirmed;
+}

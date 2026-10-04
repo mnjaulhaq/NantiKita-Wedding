@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import { BsWhatsapp } from "react-icons/bs";
-import { isThemeActive } from "@/lib/themes";
+import { useThemes } from "@/lib/use-themes";
 import { DEMO_SLUG, TEMPLATES, waLink } from "@/lib/marketing";
 import {
   PricingSection,
@@ -97,14 +97,18 @@ function ThemeThumb({ src, title }: { src: string; title: string }) {
 export default function KatalogPage() {
   const active = useActiveSection(SECTION_IDS);
   const [filter, setFilter] = useState<Filter>("all");
+  const themes = useThemes();
 
   // Tema yang sudah siap dipesan ditaruh di depan.
   const items = useMemo(
     () =>
-      TEMPLATES.map((t) => ({ ...t, ready: isThemeActive(t.key) })).sort(
+      TEMPLATES.map((t) => ({
+        ...t,
+        ready: themes.find((x) => x.key === t.key)?.status === "active",
+      })).sort(
         (a, b) => Number(b.ready) - Number(a.ready),
       ),
-    [],
+    [themes],
   );
 
   const counts = {

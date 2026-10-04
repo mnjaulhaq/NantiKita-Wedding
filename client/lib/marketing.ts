@@ -4,6 +4,14 @@
 export const WA_NUMBER = "628976337088";
 export const INSTAGRAM_URL = "https://www.instagram.com/nantikitadigitalwedding";
 export const DEMO_SLUG = "budi-dan-riri";
+export const DEMO_WEDDING = {
+  id: "demo-wedding",
+  slug: DEMO_SLUG,
+  namaPria: "Budi",
+  namaWanita: "Riri",
+  tanggalAcara: "2026-12-20T00:00:00.000Z",
+  lokasiAcara: "Jakarta",
+};
 
 export const waLink = (text?: string) =>
   text
@@ -26,7 +34,6 @@ export const TEMPLATES: TemplateItem[] = [
   {
     key: "floral_luxury",
     title: "Floral Luxury",
-    // Placeholder sementara sampai screenshot aslinya ada
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500",
     special: true,
   },
@@ -49,6 +56,21 @@ export const TEMPLATES: TemplateItem[] = [
     key: "midnight",
     title: "Midnight & Romance",
     image: "/themes/midnight/assets/img/cover-midnight.jpg",
+  },
+  {
+    key: "adatSunda",
+    title: "Adat Sunda",
+    image: "/themes/adatSunda/assets/img/cover-adatSunda.jpg",
+  },
+  {
+    key: "modern",
+    title: "Modern",
+    image: "/themes/modern/assets/img/cover-modern.jpg",
+  },
+  {
+    key: "minimalist",
+    title: "Minimalist",
+    image: "/themes/minimalist/assets/img/cover-minimalist.jpg",
   },
 ];
 

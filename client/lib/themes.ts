@@ -12,7 +12,7 @@ export const THEMES: Theme[] = [
   { key: "adatSunda", label: "Adat Sunda", status: "active" },
   { key: "rustic", label: "Rustic", status: "active" },
   { key: "cinematic", label: "Cinematic", status: "active" },
-
+  { key: "minimalist", label: "Minimalist", status: "active" },
   { key: "floral_luxury", label: "Floral Luxury", status: "dummy" },
   { key: "modern", label: "Modern", status: "dummy" },
   { key: "sage", label: "Sage & Botanical", status: "dummy" },

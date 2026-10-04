@@ -6,6 +6,7 @@ import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { errorPopup, successPopup } from "@/lib/alert";
 import { THEMES } from "@/lib/themes";
+import { useThemes } from "@/lib/use-themes";
 
 export type WeddingFormValues = {
   nama_pria: string;
@@ -27,6 +28,7 @@ type Props = {
 
 export default function WeddingForm({ mode, weddingId, initial }: Props) {
   const router = useRouter();
+  const themes = useThemes();
   const isCreate = mode === "create";
   const [saving, setSaving] = useState(false);
   const [values, setValues] = useState<WeddingFormValues>({
@@ -118,7 +120,7 @@ export default function WeddingForm({ mode, weddingId, initial }: Props) {
         <h3>Tema & musik</h3>
         <p>Tema bertanda &quot;Belum siap&quot; masih dalam pengerjaan tim dan belum bisa dipakai untuk client asli.</p>
         <div className="adm-choices" style={{ marginBottom: 20 }}>
-          {THEMES.map((t) => (
+          {themes.map((t) => (
             <label key={t.key} className={`adm-choice${values.tema === t.key ? " on" : ""}${t.status !== "active" ? " off" : ""}`}>
               <input type="radio" name="tema" value={t.key} required checked={values.tema === t.key} onChange={() => set("tema", t.key)} />
               <b>{t.label}</b>

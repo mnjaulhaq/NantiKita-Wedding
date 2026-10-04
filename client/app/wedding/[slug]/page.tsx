@@ -24,10 +24,6 @@ export default async function WeddingPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
 
-  const res = await apiFetchServer(`/api/wedding/${slug}`);
-  if (!res.ok) notFound();
-  const { data: wedding } = (await res.json()) as { data: Wedding };
-
   const theme = sp.theme || "rustic";
   const paket = sp.paket || "basic";
   const toParam = sp.to;
@@ -40,6 +36,10 @@ export default async function WeddingPage({ params, searchParams }: Props) {
   if (isDariKatalog) {
     redirect(undanganPath(slug, { theme, paket, to: "John Doe", from_katalog: true }));
   }
+
+  const res = await apiFetchServer(`/api/wedding/${slug}`);
+  if (!res.ok) notFound();
+  const { data: wedding } = (await res.json()) as { data: Wedding };
 
   // "NamaTamu" hanya placeholder di link yang dibuat admin, bukan nama sungguhan.
   const namaAwal = toParam && toParam !== "NamaTamu" ? toParam : undefined;

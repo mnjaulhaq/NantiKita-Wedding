@@ -1,9 +1,17 @@
 import { z } from "zod";
-import { themeOptions } from "../config/themes.js";
+import { resolveThemes } from "../config/themes.js";
 import * as WeddingModel from "../models/wedding.model.js";
 import * as RsvpModel from "../models/rsvp.model.js";
-export function listThemes(_req, res) {
-  res.json({ data: themeOptions() });
+export async function listThemes(_req, res) {
+  const themes = await resolveThemes();
+  res.json({
+    data: themes.map((t) => ({
+      key: t.key,
+      title: t.title,
+      status: t.status,
+      label: t.status === "dummy" ? `${t.title} (Belum Siap)` : t.title,
+    })),
+  });
 }
 export async function getWeddingBySlug(req, res) {
   const wedding = await WeddingModel.findWeddingBySlug(req.params.slug);
