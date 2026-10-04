@@ -26,7 +26,7 @@ const weddingSchema = z.object({
     lokasi_acara: z.string().min(1).max(500),
     paket: z.enum(["basic", "premium"]),
     tema: z.string().min(1),
-    musik_url: z.union([z.string().url().max(500), z.literal("")]).optional(),
+    musik_url: z.union([z.string().url().max(255), z.literal("")]).optional(),
 });
 export async function dashboard(req, res) {
     const scope = getScope(req);

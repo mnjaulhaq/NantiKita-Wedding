@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import UcapanForm from "@/components/UcapanForm";
+import { parseMusicUrl } from "@/lib/music";
 
 type Wedding = {
   slug: string;
@@ -9,6 +10,7 @@ type Wedding = {
   namaWanita: string;
   tanggalAcara: string;
   lokasiAcara: string;
+  musikUrl?: string | null; // <- tambah
 };
 
 type Props = {
@@ -28,6 +30,8 @@ export default function MinimalistTemplate({
 }: Props) {
   const rootRef = useRef<HTMLElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const youtubeRef = useRef<HTMLIFrameElement>(null);
+  const music = parseMusicUrl(wedding.musikUrl);
   const [coverLeaving, setCoverLeaving] = useState(false);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [musicPlaying, setMusicPlaying] = useState(false);
@@ -105,6 +109,21 @@ export default function MinimalistTemplate({
   }
 
   async function toggleMusic() {
+    if (music?.type === "youtube") {
+      const frame = youtubeRef.current?.contentWindow;
+      if (!frame) return;
+      frame.postMessage(
+        JSON.stringify({
+          event: "command",
+          func: musicPlaying ? "pauseVideo" : "playVideo",
+          args: [],
+        }),
+        "https://www.youtube.com",
+      );
+      setMusicPlaying(!musicPlaying);
+      return;
+    }
+
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
@@ -131,7 +150,10 @@ export default function MinimalistTemplate({
   }
 
   const accounts = [
-    { name: `a.n ${wedding.namaPria} & ${wedding.namaWanita}`, number: "6666666666" },
+    {
+      name: `a.n ${wedding.namaPria} & ${wedding.namaWanita}`,
+      number: "6666666666",
+    },
     { name: `a.n ${wedding.namaPria}`, number: "6666666666" },
     { name: `a.n ${wedding.namaWanita}`, number: "6666666666" },
   ];
@@ -139,7 +161,11 @@ export default function MinimalistTemplate({
   return (
     <main ref={rootRef}>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
       <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Literata:ital,wght@0,400;1,400&family=Saira+Semi+Condensed:wght@400&family=Dancing+Script:wght@500&display=swap"
         rel="stylesheet"
@@ -147,14 +173,24 @@ export default function MinimalistTemplate({
       <link rel="stylesheet" href={asset("css/style.css")} />
 
       {!themeReady && (
-        <p role="status" className="mx-auto max-w-md bg-yellow-50 p-3 text-sm text-yellow-800">
-          Tema &quot;minimalist&quot; sedang disiapkan. Menampilkan tampilan sementara.
+        <p
+          role="status"
+          className="mx-auto max-w-md bg-yellow-50 p-3 text-sm text-yellow-800"
+        >
+          Tema &quot;minimalist&quot; sedang disiapkan. Menampilkan tampilan
+          sementara.
         </p>
       )}
 
-      <div id="cover" className={coverLeaving ? "leaving" : undefined} style={{ display: inviteVisible ? "none" : undefined }}>
+      <div
+        id="cover"
+        className={coverLeaving ? "leaving" : undefined}
+        style={{ display: inviteVisible ? "none" : undefined }}
+      >
         <p className="wo">THE WEDDING OF</p>
-        <h1>{wedding.namaPria} &amp; {wedding.namaWanita}</h1>
+        <h1>
+          {wedding.namaPria} &amp; {wedding.namaWanita}
+        </h1>
         <img className="pimg" src={asset("img/printer.webp")} alt="" />
         <div className="slot">
           <div className="polaroid cv">
@@ -163,63 +199,119 @@ export default function MinimalistTemplate({
           </div>
         </div>
         <p className="to">TO : {tamu}</p>
-        <button className="btn" type="button" onClick={openInvitation}>Click to open</button>
+        <button className="btn" type="button" onClick={openInvitation}>
+          Click to open
+        </button>
       </div>
 
       <div id="invite" style={{ display: inviteVisible ? "block" : "none" }}>
         <div className="wrap">
           <section>
-            <h3 className="sm">{wedding.namaPria} &amp; {wedding.namaWanita}</h3>
+            <h3 className="sm">
+              {wedding.namaPria} &amp; {wedding.namaWanita}
+            </h3>
             <p className="sm2">{shortDate}</p>
             <div className="op">
               <div className="bq">
                 <span className="qm">“</span>
-                <p>Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat yang mempersatukan</p>
-                <p><em>Kolose 3 : 14</em></p>
+                <p>
+                  Dan di atas semuanya itu: kenakanlah kasih, sebagai pengikat
+                  yang mempersatukan
+                </p>
+                <p>
+                  <em>Kolose 3 : 14</em>
+                </p>
               </div>
-              <img className="ii" src={asset("img/dinner-table.webp")} alt="" width="150" />
+              <img
+                className="ii"
+                src={asset("img/dinner-table.webp")}
+                alt=""
+                width="150"
+              />
             </div>
           </section>
           <section>
             <h2>The Groom</h2>
-            <img className="ii" src={asset("img/loafers.webp")} alt="" width="64" />
+            <img
+              className="ii"
+              src={asset("img/loafers.webp")}
+              alt=""
+              width="64"
+            />
             <p>Dengan penuh kasih dan doa restu keluarga</p>
             <img className="frame" src={asset("img/groom.webp")} alt="" />
             <h3>{wedding.namaPria}</h3>
-            <img className="ii" src={asset("img/ring.webp")} alt="" width="110" />
+            <img
+              className="ii"
+              src={asset("img/ring.webp")}
+              alt=""
+              width="110"
+            />
             <h3>{wedding.namaWanita}</h3>
             <img className="frame" src={asset("img/bride.webp")} alt="" />
             <p>Dengan penuh kasih dan doa restu keluarga</p>
-            <img className="ii" src={asset("img/heels.webp")} alt="" width="64" />
+            <img
+              className="ii"
+              src={asset("img/heels.webp")}
+              alt=""
+              width="64"
+            />
             <h2>The Bride</h2>
-            <img className="ii" src={asset("img/couple.webp")} alt="" width="150" />
+            <img
+              className="ii"
+              src={asset("img/couple.webp")}
+              alt=""
+              width="150"
+            />
           </section>
           <section>
             <h2>The Love Story</h2>
             <div className="row">
               <div>
                 <h3>Chapter 1 – First Meet, First Spark</h3>
-                <p>January 21st, 2024. Mereka bertemu dan mulai menulis kisah bersama.</p>
+                <p>
+                  January 21st, 2024. Mereka bertemu dan mulai menulis kisah
+                  bersama.
+                </p>
               </div>
             </div>
             <div className="row">
               <div>
                 <h3>Chapter 2 – Official Mode On</h3>
-                <p>Dua hati memilih untuk berjalan bersama, saling mendukung dalam setiap langkah.</p>
+                <p>
+                  Dua hati memilih untuk berjalan bersama, saling mendukung
+                  dalam setiap langkah.
+                </p>
               </div>
-              <img className="pf" src={asset("img/love-bw-1.jpg")} alt="" style={{ transform: "rotate(4deg)" }} />
+              <img
+                className="pf"
+                src={asset("img/love-bw-1.jpg")}
+                alt=""
+                style={{ transform: "rotate(4deg)" }}
+              />
             </div>
             <div className="row ta-r">
               <div>
                 <h3>Chapter 3 – Big Moves, Real Dreams</h3>
-                <p>Bersama, mereka membangun impian dan masa depan yang penuh harapan.</p>
+                <p>
+                  Bersama, mereka membangun impian dan masa depan yang penuh
+                  harapan.
+                </p>
               </div>
             </div>
             <div className="row ta-r">
-              <img className="pf" src={asset("img/love-bw-2.jpg")} alt="" style={{ transform: "rotate(-4deg)" }} />
+              <img
+                className="pf"
+                src={asset("img/love-bw-2.jpg")}
+                alt=""
+                style={{ transform: "rotate(-4deg)" }}
+              />
               <div>
                 <h3>Chapter 4 – Going to Forever</h3>
-                <p>Dengan penuh cinta, mereka siap melangkah menuju hari bahagia dan selamanya.</p>
+                <p>
+                  Dengan penuh cinta, mereka siap melangkah menuju hari bahagia
+                  dan selamanya.
+                </p>
               </div>
             </div>
           </section>
@@ -230,9 +322,16 @@ export default function MinimalistTemplate({
               <div className="slot">
                 <div className="strip">
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((number) => (
-                    <img key={number} className="g" src={asset(`img/gallery-${number}.jpg`)} alt="" />
+                    <img
+                      key={number}
+                      className="g"
+                      src={asset(`img/gallery-${number}.jpg`)}
+                      alt=""
+                    />
                   ))}
-                  <p style={{ fontSize: 12, letterSpacing: ".2em" }}>{wedding.namaPria[0]} &amp; {wedding.namaWanita[0]}</p>
+                  <p style={{ fontSize: 12, letterSpacing: ".2em" }}>
+                    {wedding.namaPria[0]} &amp; {wedding.namaWanita[0]}
+                  </p>
                 </div>
               </div>
             </div>
@@ -240,23 +339,45 @@ export default function MinimalistTemplate({
           <section>
             <h2>The Details</h2>
             <h3>Holy Matrimony</h3>
-            <img className="ii" src={asset("img/rings.webp")} alt="" width="80" />
+            <img
+              className="ii"
+              src={asset("img/rings.webp")}
+              alt=""
+              width="80"
+            />
             <p className="t">{fullDate}</p>
             <p className="pl">{wedding.lokasiAcara}</p>
-            <a className="btn" href={`https://maps.google.com/?q=${encodeURIComponent(wedding.lokasiAcara)}`}>Direction</a>
+            <a
+              className="btn"
+              href={`https://maps.google.com/?q=${encodeURIComponent(wedding.lokasiAcara)}`}
+            >
+              Direction
+            </a>
             <div style={{ height: 44 }} />
             <h3>Wedding Reception</h3>
-            <img className="ii" src={asset("img/cake.webp")} alt="" width="70" />
+            <img
+              className="ii"
+              src={asset("img/cake.webp")}
+              alt=""
+              width="70"
+            />
             <p className="t">{fullDate}</p>
             <p className="pl">{wedding.lokasiAcara}</p>
-            <a className="btn" href={`https://maps.google.com/?q=${encodeURIComponent(wedding.lokasiAcara)}`}>Direction</a>
+            <a
+              className="btn"
+              href={`https://maps.google.com/?q=${encodeURIComponent(wedding.lokasiAcara)}`}
+            >
+              Direction
+            </a>
           </section>
           <section>
             <div className="qc">
               <div className="qc-back" />
               <div className="qc-card">
                 <p>Love isn’t fireworks every day,</p>
-                <div className="qc-media"><img src={asset("img/quote-photo.jpg")} alt="" /></div>
+                <div className="qc-media">
+                  <img src={asset("img/quote-photo.jpg")} alt="" />
+                </div>
                 <p>it’s staying when the sparks fade.</p>
               </div>
             </div>
@@ -280,27 +401,73 @@ export default function MinimalistTemplate({
                     <p>{account.name}</p>
                     <div className="num">
                       <span>{account.number}</span>
-                      <button type="button" onClick={() => void copyAccount(account.number, index)}>
+                      <button
+                        type="button"
+                        onClick={() => void copyAccount(account.number, index)}
+                      >
                         {copiedAccount === index ? "Tersalin" : "Salin"}
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
-              <h2 className="vg">virt<br />ual<br />gift</h2>
+              <h2 className="vg">
+                virt
+                <br />
+                ual
+                <br />
+                gift
+              </h2>
             </div>
           </section>
           <section style={{ border: 0 }}>
             <p style={{ fontSize: 18 }}>see you soon!</p>
-            <p style={{ fontSize: 18 }}>love, {wedding.namaPria[0]} &amp; {wedding.namaWanita[0]}</p>
-            <img className="ii" src={asset("img/car.webp")} alt="" width="220" />
+            <p style={{ fontSize: 18 }}>
+              love, {wedding.namaPria[0]} &amp; {wedding.namaWanita[0]}
+            </p>
+            <img
+              className="ii"
+              src={asset("img/car.webp")}
+              alt=""
+              width="220"
+            />
           </section>
         </div>
       </div>
-      <button className={`vinyl${musicPlaying ? " spin" : ""}`} type="button" aria-label="Musik" onClick={() => void toggleMusic()}>
+      <button
+        className={`vinyl${musicPlaying ? " spin" : ""}`}
+        type="button"
+        aria-label="Musik"
+        onClick={() => void toggleMusic()}
+      >
         musik
       </button>
-      <audio ref={audioRef} loop preload="auto" src={asset("music/background.mp3")} />
+      {music?.type === "youtube" ? (
+        <iframe
+          ref={youtubeRef}
+          title="Musik latar"
+          aria-hidden="true"
+          tabIndex={-1}
+          allow="autoplay"
+          src={`https://www.youtube.com/embed/${music.id}?enablejsapi=1&loop=1&playlist=${music.id}&controls=0&playsinline=1`}
+          style={{
+            position: "fixed",
+            left: -9999,
+            width: 1,
+            height: 1,
+            border: 0,
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+        />
+      ) : (
+        <audio
+          ref={audioRef}
+          loop
+          preload="auto"
+          src={music?.src ?? asset("music/background.mp3")}
+        />
+      )}
     </main>
   );
 }
