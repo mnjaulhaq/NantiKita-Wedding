@@ -17,6 +17,7 @@ type Wedding = {
   tanggalAcara: string;
   lokasiAcara: string;
   slug: string;
+  musikUrl?: string | null;  
 };
 
 // Halaman surat undangan: tujuan redirect setelah tamu mengisi RSVP.
