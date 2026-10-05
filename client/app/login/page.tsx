@@ -52,7 +52,9 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setBackendError(data.errors?.username?.[0] || "Login gagal.");
+        setBackendError(
+          data.errors?.username?.[0] || data.message || "Login gagal.",
+        );
         return;
       }
 
