@@ -17,7 +17,18 @@ export async function getWeddingBySlug(req, res) {
   const wedding = await WeddingModel.findWeddingBySlug(req.params.slug);
   if (!wedding)
     return res.status(404).json({ message: "Undangan tidak ditemukan." });
-  res.json({ data: wedding });
+  res.json({
+    data: {
+      id: wedding.id,
+      slug: wedding.slug,
+      namaPria: wedding.namaPria,
+      namaWanita: wedding.namaWanita,
+      tanggalAcara: wedding.tanggalAcara,
+      lokasiAcara: wedding.lokasiAcara,
+      tema: wedding.tema,
+      musikUrl: wedding.musikUrl,
+    },
+  });
 }
 // Dashboard RSVP untuk pengantin (kata kunci "admin"/"client" di halaman gerbang).
 // Hanya mengirim field yang dibutuhkan, tanpa userId/relasi internal.
@@ -110,12 +121,10 @@ export async function submitUcapan(req, res) {
     parsed.data.ucapan,
   );
   if (!ok)
-    return res
-      .status(404)
-      .json({
-        message:
-          "Konfirmasi kehadiran Anda belum ditemukan. Silakan isi RSVP terlebih dahulu.",
-      });
+    return res.status(404).json({
+      message:
+        "Konfirmasi kehadiran Anda belum ditemukan. Silakan isi RSVP terlebih dahulu.",
+    });
   res.json({
     success: true,
     message: "Terima kasih! Ucapan dan doa restu Anda telah tersimpan.",

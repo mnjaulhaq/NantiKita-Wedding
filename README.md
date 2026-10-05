@@ -26,6 +26,10 @@ npm install
 npm run dev                        # http://localhost:3000
 ```
 
+Jika MySQL Laragon sempat dimatikan saat API sedang berjalan, server API tetap hidup.
+Setelah MySQL dinyalakan lagi, coba ulang request tanpa me-restart server; error sementara
+akan dibalas sebagai HTTP 503 dan tercatat di terminal server.
+
 Buat database kosong bernama `nantikita_wedding` sebelum menjalankan `migrate deploy`.
 
 ### Akun owner pertama

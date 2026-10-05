@@ -30,3 +30,7 @@ export function markEmailVerified(id) {
 export function deleteUsersByUsername(username) {
     return db.user.deleteMany({ where: { username } });
 }
+
+export function deleteUserById(id) {
+  return db.user.delete({ where: { id } });
+}

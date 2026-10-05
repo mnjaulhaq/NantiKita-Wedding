@@ -1,4 +1,5 @@
-export function rateLimit({ windowMs, max, key, message }) {
+export function rateLimit({ windowMs, max, key, message, errorField }) {
+    const msg = message || "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.";
     const hits = new Map();
     setInterval(() => {
         const now = Date.now();
@@ -18,8 +19,8 @@ export function rateLimit({ windowMs, max, key, message }) {
         if (entry.count > max) {
             res.setHeader("Retry-After", String(Math.ceil((entry.resetAt - now) / 1000)));
             return res.status(429).json({
-                message: message || "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.",
-                errors: { otp_code: [message || "Terlalu banyak percobaan. Coba lagi beberapa saat lagi."] },
+                message: msg,
+                ...(errorField && { errors: { [errorField]: [msg] } }),
             });
         }
         next();
